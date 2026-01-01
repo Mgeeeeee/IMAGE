@@ -401,8 +401,11 @@
         }
 
         .form-group textarea {
-            min-height: 240px;
-            resize: vertical;
+            min-height: 120px;
+            max-height: none;
+            resize: none;
+            overflow-y: hidden;
+            line-height: 1.6;
         }
 
         /* 移动端适配 */
@@ -713,6 +716,14 @@
             // 切换选中状态
             document.querySelectorAll('.preset-chip').forEach(c => c.classList.remove('active'));
             chipElement.classList.add('active');
+
+            // 自动调整高度
+            autoResizeTextarea(input);
+        }
+
+        function autoResizeTextarea(element) {
+            element.style.height = 'auto';
+            element.style.height = element.scrollHeight + 'px';
         }
         let accountBalance = null;
         let balanceFetched = false;
@@ -788,6 +799,10 @@
         window.addEventListener('DOMContentLoaded', () => {
             initBackground();
             initPresets();
+
+            const promptInput = document.getElementById('promptInput');
+            promptInput.addEventListener('input', () => autoResizeTextarea(promptInput));
+
             const savedApiKey = localStorage.getItem('apiKey');
             const savedApiUrl = localStorage.getItem('apiUrl');
             const savedModel = localStorage.getItem('model');
@@ -820,6 +835,10 @@
 
         function openModal(id) {
             document.getElementById(id).classList.add('active');
+            if (id === 'promptModal') {
+                const input = document.getElementById('promptInput');
+                setTimeout(() => autoResizeTextarea(input), 50); // 等待弹窗动效开启后计算
+            }
         }
 
         function closeModal(id) {
