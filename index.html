@@ -134,6 +134,7 @@
             left: 50%;
             transform: translateX(-50%);
             width: 56px;
+            max-width: 56px;
             height: 56px;
             background: var(--toolbar-bg);
             backdrop-filter: blur(20px);
@@ -141,7 +142,7 @@
             border-radius: 28px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
             z-index: 1000;
-            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: width 0.4s ease-out, max-width 0.4s ease-out, height 0.4s ease-out, border-radius 0.4s ease-out, padding 0.4s ease-out;
             overflow: hidden;
             display: flex;
             flex-direction: column;
@@ -155,6 +156,7 @@
             border-radius: 32px;
             cursor: default;
             padding: 24px;
+            border: 2px dashed #000;
         }
 
         /* 初始圆点状态下的图标 */
@@ -180,18 +182,19 @@
             flex: 1;
             width: 100%;
             opacity: 0;
-            transform: translateY(10px);
-            transition: all 0.4s ease 0.2s;
+            visibility: hidden;
+            transition: opacity 0.1s ease, visibility 0.1s ease;
             overflow-y: auto;
             margin-bottom: 20px;
-            display: none;
             scrollbar-width: thin;
+            pointer-events: none;
         }
 
         .action-center.expanded .display-area {
             opacity: 1;
-            transform: translateY(0);
-            display: block;
+            visibility: visible;
+            pointer-events: auto;
+            transition: opacity 0.3s ease 0.15s, visibility 0.3s ease 0.15s;
         }
 
         /* 辅助工具栏 (Aux Bar) */
@@ -203,11 +206,16 @@
             padding-top: 15px;
             border-top: 1px solid rgba(0, 0, 0, 0.05);
             opacity: 0;
-            transition: all 0.4s ease 0.3s;
+            visibility: hidden;
+            transition: opacity 0.1s ease, visibility 0.1s ease;
+            pointer-events: none;
         }
 
         .action-center.expanded .aux-bar {
             opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            transition: opacity 0.3s ease 0.2s, visibility 0.3s ease 0.2s;
         }
 
         .nav-btn {
@@ -243,13 +251,14 @@
         .gen-btn {
             background: #000;
             color: #fff;
-            width: 54px;
-            height: 54px;
-            border-radius: 16px;
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
+            border: none;
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
         }
 
@@ -261,6 +270,12 @@
 
         .tab-content.active {
             display: block;
+        }
+
+        #tab-upload.active {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
         }
 
         @keyframes fadeIn {
@@ -344,6 +359,151 @@
             font-weight: 600;
             color: var(--accent-color);
             border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+
+        /* 标题栏 */
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+            transition: color 0.2s;
+        }
+
+        .close-btn:hover {
+            color: var(--text-color);
+        }
+
+        /* 表单组 */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            font-size: 14px;
+            background: rgba(255, 255, 255, 0.8);
+            color: var(--text-color);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        /* 模型按钮组 */
+        .model-btn-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .model-quick-btn {
+            flex: 1;
+            padding: 10px 12px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.8);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-color);
+        }
+
+        .model-quick-btn:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .model-quick-btn.active {
+            background: #000;
+            color: #fff;
+            border-color: #000;
+        }
+
+        /* 操作按钮 */
+        .modal-action-btn {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-color);
+        }
+
+        .modal-action-btn:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        /* 预设风格容器 */
+        .preset-container {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .preset-chip {
+            padding: 8px 16px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-color);
+        }
+
+        .preset-chip:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .preset-chip.active {
+            background: #000;
+            color: #fff;
+            border-color: #000;
         }
     </style>
 </head>
@@ -440,11 +600,10 @@
                     <button class="close-btn" onclick="collapseActionCenter(event)">&times;</button>
                 </div>
                 <div id="uploadPreview"
-                    style="width: 100%; aspect-ratio: 1; background: #f1f5f9; border-radius: 16px; border: 2px dashed #cbd5e1; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 16px;">
-                    <p style="color: var(--text-muted); font-size: 14px;">尚未上传图片</p>
+                    style="width: 100%; flex: 1; min-height: 80px; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 16px;">
                 </div>
                 <button class="modal-action-btn" onclick="document.getElementById('imageUpload').click()">
-                    重新上传图像
+                    上传图像
                 </button>
             </div>
 
@@ -715,58 +874,22 @@
             }
         }
 
-        const presetData = {
-            '浮墨': `# 浮墨\n根据用户要求，结合语境氛围，生成图片\n\n## 图片要求\n- 纹理：宣纸、金箔\n- 元素：东方、意象\n- 字体：手写、书法\n- 结构：疏密、有致\n- 排版：呼吸、留白\n\n## 输出\n- 直接生成图片，不要多余解释.`,
-            '流线': `# 流线\n直接根据以下要求生成插画，不要提问，不要解释\n\n## 具体任务\n- 自动理解提炼材料主体\n- 创作一副极简风格插画\n\n## 插画风格\n- 背景：干净、米色(#F1EBDE)\n- 线条：流畅、克制、连续\n- 颜色：黑色为主、克制的点缀色\n- 整体：故事、交互、氛围、自然\n\n## 三申五令\n- 禁止文字符号\n\n## 输出\n- 请直接输出符合要求的图片，不要多余解释.`,
-            '线条': `# 线条\n直接根据以下要求为照片添加线条插画，不要提问，不要解释\n\n## 视觉风格\n- 线条：白色/黑色、简约、干净\n- 主体：线条构成人物/动物/植物/日常物品\n- 比例：主体的比例与透视需与照片场景匹配\n- 融入：主体与照片场景自然有效互动，仿佛原本就存在\n- 整体：主体与照片相辅相成，形成一个场景故事\n- 想象：主体与照片的融合需出人意料 but 合乎情理，富有想象力\n\n## 三申五令\n- 禁止对原图片进行修改，只添加线条插画\n- 禁止任何填充颜色，仅使用线条表现形体\n\n## 输出\n- 直接输出编辑后的图片，不要多余解释.`
-        };
-
-        function initPresets() {
-            const container = document.getElementById('presetContainer');
-            if (!container) return;
-            container.innerHTML = '';
-            Object.keys(presetData).forEach(name => {
-                const chip = document.createElement('div');
-                chip.className = 'preset-chip';
-                chip.textContent = name;
-                chip.onclick = () => selectPreset(name, chip);
-                container.appendChild(chip);
-            });
-        }
-
-        function selectPreset(name, chipElement) {
-            const input = document.getElementById('promptInput');
-            input.value = presetData[name];
-            document.querySelectorAll('.preset-chip').forEach(c => c.classList.remove('active'));
-            chipElement.classList.add('active');
-            autoResizeTextarea(input);
-        }
-
-        function autoResizeTextarea(element) {
-            element.style.height = 'auto';
-            element.style.height = element.scrollHeight + 'px';
-        }
-
-        function selectQuickModel(modelId, btnId) {
-            const select = document.getElementById('modelSelect');
-            select.value = modelId;
-            localStorage.setItem('model', modelId);
-            document.querySelectorAll('.model-quick-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(btnId).classList.add('active');
-            document.getElementById('otherModelsContainer').style.display = 'none';
-            handleConfigChange();
-        }
-
-        function showOtherModels() {
-            const container = document.getElementById('otherModelsContainer');
-            document.querySelectorAll('.model-quick-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById('btn-others').classList.add('active');
-            container.style.display = 'block';
-        }
 
         // --- 操作中心逻辑 ---
         function expandActionCenter() {
             const ac = document.getElementById('actionCenter');
+
+            // 每次展开时，如果当前有生图结果，则重置回初始状态 (点击即回归)
+            const previewImg = document.getElementById('mainPreview');
+            const emptyState = document.getElementById('emptyState');
+
+            if (previewImg.style.display !== 'none' && previewImg.src) {
+                previewImg.style.display = 'none';
+                previewImg.src = '';
+                emptyState.style.display = 'flex';
+                emptyState.classList.remove('loading');
+            }
+
             if (!ac.classList.contains('expanded')) {
                 ac.classList.add('expanded');
                 // 展开后默认显示对话 Tab
@@ -829,7 +952,7 @@
 
                 // 更新显示区域的预览
                 const up = document.getElementById('uploadPreview');
-                up.innerHTML = `<img src="${e.target.result}" style="width:100%; height:100%; object-fit:cover;">`;
+                up.innerHTML = `<img src="${e.target.result}" style="max-width:100%; max-height:100%; object-fit:contain; border-radius: 16px; border: 2px dashed #000;">`;
 
                 // 同时更新主预览（如果还没生成过图）
                 const preview = document.getElementById('mainPreview');
@@ -984,10 +1107,11 @@
             preview.style.display = 'none';
 
             try {
-                // 智能路由逻辑：根据模型和比例选择最佳 API
-                const isGenerationsApi = model.toLowerCase().includes('-2k') ||
-                    size === '21:9' ||
-                    model.toLowerCase().includes('banana');
+                // 智能路由逻辑：优先原生协议以获得更好的连通性和功能支持
+                // 仅特定的第三方桥接模型（如 banana）强制使用 OpenAI 兼容路由
+                const isGenerationsApi = model.toLowerCase().includes('banana');
+
+                console.log(`[Router] Model: ${model}, AspectRatio: ${size}, Protocol: ${isGenerationsApi ? 'OpenAI-Compatible' : 'Google-Native'}`);
 
                 let res;
                 if (isGenerationsApi) {
