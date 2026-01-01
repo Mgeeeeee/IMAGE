@@ -907,8 +907,7 @@
             if (balanceFetched) {
                 chip.style.display = 'inline';
                 const formattedUSD = (accountBalance || 0).toFixed(2);
-                const formattedQuota = new Intl.NumberFormat().format(Math.floor(rawQuota || 0));
-                chip.textContent = `余额: $${formattedUSD} / ${formattedQuota}`;
+                chip.textContent = `余额: $${formattedUSD}`;
             }
         }
 
