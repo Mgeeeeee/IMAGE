@@ -138,15 +138,65 @@
             height: 56px;
             background: var(--toolbar-bg);
             backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.4);
+            border: 2px solid rgba(255, 255, 255, 0.3);
             border-radius: 28px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            box-shadow:
+                0 20px 40px rgba(102, 126, 234, 0.3),
+                0 0 20px rgba(118, 75, 162, 0.2);
             z-index: 1000;
-            transition: width 0.4s ease-out, max-width 0.4s ease-out, height 0.4s ease-out, border-radius 0.4s ease-out, padding 0.4s ease-out;
+            transition: width 0.4s ease-out, max-width 0.4s ease-out, height 0.4s ease-out, border-radius 0.4s ease-out, padding 0.4s ease-out, background 0.4s ease-out, box-shadow 0.4s ease-out;
             overflow: hidden;
             display: flex;
             flex-direction: column;
             cursor: pointer;
+        }
+
+        /* 魔法光晕层 */
+        .action-center::before,
+        .action-center::after {
+            content: '';
+            position: absolute;
+            top: -20%;
+            left: -20%;
+            width: 140%;
+            height: 140%;
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 1;
+            transition: opacity 0.1s ease 0.4s;
+        }
+
+        .action-center::before {
+            background:
+                radial-gradient(circle at 30% 30%, rgba(64, 224, 208, 1) 0%, transparent 50%),
+                radial-gradient(circle at 70% 60%, rgba(255, 105, 180, 1) 0%, transparent 50%),
+                radial-gradient(circle at 50% 80%, rgba(138, 92, 246, 1) 0%, transparent 50%);
+            animation: magicSpin 8s linear infinite;
+            filter: blur(8px);
+        }
+
+        .action-center::after {
+            background:
+                radial-gradient(circle at 60% 20%, rgba(255, 165, 80, 1) 0%, transparent 45%),
+                radial-gradient(circle at 20% 70%, rgba(80, 200, 255, 1) 0%, transparent 45%),
+                radial-gradient(circle at 80% 80%, rgba(255, 100, 150, 1) 0%, transparent 45%);
+            animation: magicSpin 12s linear infinite reverse;
+            filter: blur(6px);
+        }
+
+        .action-center.expanded::before,
+        .action-center.expanded::after {
+            opacity: 0;
+            transition: opacity 0.1s ease;
+        }
+
+        @keyframes magicSpin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         .action-center.expanded {
@@ -156,25 +206,9 @@
             border-radius: 32px;
             cursor: default;
             padding: 24px;
+            background: var(--toolbar-bg);
             border: 2px dashed #000;
-        }
-
-        /* 初始圆点状态下的图标 */
-        .action-trigger {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 56px;
-            height: 56px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: opacity 0.3s;
-        }
-
-        .action-center.expanded .action-trigger {
-            opacity: 0;
-            pointer-events: none;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
         }
 
         /* 显示区域 (Display Area) */
@@ -524,12 +558,6 @@
     </div>
 
     <div class="action-center" id="actionCenter" onclick="expandActionCenter()">
-        <div class="action-trigger">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                style="width: 24px; height: 24px;">
-                <path d="M12 5v14M5 12h14" />
-            </svg>
-        </div>
 
         <div class="display-area">
             <!-- 设置 Tab -->
