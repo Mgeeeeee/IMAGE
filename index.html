@@ -136,6 +136,8 @@
             width: 56px;
             max-width: 56px;
             height: 56px;
+            --glow-spin-1: 8s;
+            --glow-spin-2: 12s;
             background: var(--toolbar-bg);
             backdrop-filter: blur(20px);
             border: 2px solid rgba(255, 255, 255, 0.3);
@@ -171,7 +173,7 @@
                 radial-gradient(circle at 30% 30%, rgba(64, 224, 208, 1) 0%, transparent 50%),
                 radial-gradient(circle at 70% 60%, rgba(255, 105, 180, 1) 0%, transparent 50%),
                 radial-gradient(circle at 50% 80%, rgba(138, 92, 246, 1) 0%, transparent 50%);
-            animation: magicSpin 8s linear infinite;
+            animation: magicSpin var(--glow-spin-1) linear infinite;
             filter: blur(8px);
         }
 
@@ -180,8 +182,13 @@
                 radial-gradient(circle at 60% 20%, rgba(255, 165, 80, 1) 0%, transparent 45%),
                 radial-gradient(circle at 20% 70%, rgba(80, 200, 255, 1) 0%, transparent 45%),
                 radial-gradient(circle at 80% 80%, rgba(255, 100, 150, 1) 0%, transparent 45%);
-            animation: magicSpin 12s linear infinite reverse;
+            animation: magicSpin var(--glow-spin-2) linear infinite reverse;
             filter: blur(6px);
+        }
+
+        .action-center.generating {
+            --glow-spin-1: 1.2s;
+            --glow-spin-2: 1.8s;
         }
 
         .action-center.expanded::before,
@@ -1127,8 +1134,10 @@
             const emptyState = document.getElementById('emptyState');
             const emptySubtitle = emptyState.querySelector('.empty-subtitle');
             const preview = document.getElementById('mainPreview');
+            const actionCenter = document.getElementById('actionCenter');
 
             btn.disabled = true;
+            actionCenter.classList.add('generating');
             emptyState.classList.add('loading');
             emptyState.style.display = 'flex';
             emptySubtitle.textContent = '美好值得等待';
@@ -1235,6 +1244,7 @@
                 btn.disabled = false;
                 emptyState.classList.remove('loading');
                 emptySubtitle.textContent = 'MGEEEEEE LAB';
+                actionCenter.classList.remove('generating');
             }
         }
     </script>
