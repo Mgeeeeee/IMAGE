@@ -1105,8 +1105,14 @@
                     const isGoogleModel = model.toLowerCase().includes('gemini') || model.toLowerCase().includes('banana');
 
                     if (isGoogleModel) {
-                        // 同时发送以确保兼容性
-                        requestBody.imageConfig = { aspectRatio: size };
+                        // 遵循文档：参数嵌套在 generationConfig.imageConfig 下
+                        requestBody.generationConfig = {
+                            responseModalities: ["IMAGE", "TEXT"],
+                            imageConfig: {
+                                aspectRatio: size
+                            }
+                        };
+                        // 根级别保留 size 以确保基础代理层识别
                         requestBody.size = resolution;
                     } else {
                         requestBody.size = resolution;
