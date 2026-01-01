@@ -1089,12 +1089,27 @@
                 requestBody.messages[0].content.push({ type: 'text', text: fullPrompt });
 
                 if (size) {
+                    const aspectRatioMap = {
+                        "1:1": "1024x1024",
+                        "2:3": "832x1248",
+                        "3:2": "1248x832",
+                        "3:4": "864x1184",
+                        "4:3": "1184x864",
+                        "4:5": "896x1152",
+                        "5:4": "1152x896",
+                        "9:16": "768x1344",
+                        "16:9": "1344x768",
+                        "21:9": "1536x672"
+                    };
+                    const resolution = aspectRatioMap[size] || size;
                     const isGoogleModel = model.toLowerCase().includes('gemini') || model.toLowerCase().includes('banana');
+
                     if (isGoogleModel) {
+                        // 同时发送以确保兼容性
                         requestBody.imageConfig = { aspectRatio: size };
+                        requestBody.size = resolution;
                     } else {
-                        // 兼容那些使用 1024x1024 格式的其他模型
-                        requestBody.size = size.includes(':') ? size : size;
+                        requestBody.size = resolution;
                     }
                 }
 
