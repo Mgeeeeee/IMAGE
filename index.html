@@ -465,13 +465,11 @@
         const canvas = document.getElementById('bgCanvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
-        let shapes = [];
 
         function initBackground() {
             window.addEventListener('resize', resizeCanvas);
             resizeCanvas();
             createParticles();
-            createShapes();
             animateBackground();
         }
 
@@ -494,30 +492,10 @@
             }
         }
 
-        function createShapes() {
-            shapes = [];
-            for (let i = 0; i < 5; i++) {
-                shapes.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * canvas.height,
-                    size: Math.random() * 100 + 50,
-                    angle: Math.random() * Math.PI * 2,
-                    speed: Math.random() * 0.01
-                });
-            }
-        }
+
 
         function animateBackground() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // 绘制面 (半透明几何形) - 改为深灰色/黑色透明
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.02)';
-            shapes.forEach(shape => {
-                shape.angle += shape.speed;
-                ctx.beginPath();
-                ctx.arc(shape.x, shape.y, shape.size, 0, Math.PI * 2);
-                ctx.fill();
-            });
 
             // 绘制连线和点 - 改为深灰色/黑色透明
             ctx.strokeStyle = 'rgba(0, 0, 0, 0.05)';
