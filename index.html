@@ -103,6 +103,11 @@
             justify-content: center;
             align-items: center;
             text-align: center;
+            position: absolute;
+            top: 22%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
         }
 
         .empty-logo {
@@ -127,14 +132,13 @@
             transition: all 0.5s ease;
         }
 
-        /* 操作中心 (Action Center) - 魔幻变形容器 */
-        .action-center {
+        /* 入口按钮 (Action Button) */
+        .action-button {
             position: fixed;
             bottom: 30px;
             left: 50%;
             transform: translate3d(-50%, 0, 0);
             width: 56px;
-            max-width: 56px;
             height: 56px;
             --glow-spin-1: 8s;
             --glow-spin-2: 12s;
@@ -146,17 +150,24 @@
                 0 20px 40px rgba(102, 126, 234, 0.3),
                 0 0 20px rgba(118, 75, 162, 0.2);
             z-index: 1000;
-            transition: width 0.4s ease-out, max-width 0.4s ease-out, height 0.4s ease-out, border-radius 0.4s ease-out, padding 0.4s ease-out, background 0.4s ease-out, box-shadow 0.4s ease-out;
+            transition: transform 0.3s ease, opacity 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
             overflow: hidden;
             display: flex;
-            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
-            will-change: width, height, border-radius, padding, transform;
+            will-change: transform, opacity;
+        }
+
+        .action-button.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: translate3d(-50%, 12px, 0) scale(0.96);
         }
 
         /* 魔法光晕层 */
-        .action-center::before,
-        .action-center::after {
+        .action-button::before,
+        .action-button::after {
             content: '';
             position: absolute;
             top: -20%;
@@ -166,10 +177,10 @@
             border-radius: 50%;
             pointer-events: none;
             opacity: 1;
-            transition: opacity 0.1s ease 0.4s;
+            transition: opacity 0.12s ease;
         }
 
-        .action-center::before {
+        .action-button::before {
             background:
                 radial-gradient(circle at 30% 30%, rgba(64, 224, 208, 1) 0%, transparent 50%),
                 radial-gradient(circle at 70% 60%, rgba(255, 105, 180, 1) 0%, transparent 50%),
@@ -178,7 +189,7 @@
             filter: blur(8px);
         }
 
-        .action-center::after {
+        .action-button::after {
             background:
                 radial-gradient(circle at 60% 20%, rgba(255, 165, 80, 1) 0%, transparent 45%),
                 radial-gradient(circle at 20% 70%, rgba(80, 200, 255, 1) 0%, transparent 45%),
@@ -187,15 +198,9 @@
             filter: blur(6px);
         }
 
-        .action-center.generating {
+        .action-button.generating {
             --glow-spin-1: 1.2s;
             --glow-spin-2: 1.8s;
-        }
-
-        .action-center.expanded::before,
-        .action-center.expanded::after {
-            opacity: 0;
-            transition: opacity 0.1s ease;
         }
 
         @keyframes magicSpin {
@@ -207,16 +212,38 @@
             }
         }
 
-        .action-center.expanded {
+        /* 操作面板 (Action Panel) */
+        .action-panel {
             width: 95%;
             max-width: 500px;
             height: 500px;
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translate3d(-50%, 16px, 0);
             border-radius: 32px;
             cursor: default;
             padding: 24px;
             background: var(--toolbar-bg);
+            backdrop-filter: blur(20px);
             border: 2px dashed #000;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            z-index: 1001;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease;
+            will-change: transform, opacity;
+        }
+
+        .action-panel.open {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            transform: translate3d(-50%, 0, 0);
         }
 
         /* 显示区域 (Display Area) */
@@ -232,7 +259,7 @@
             pointer-events: none;
         }
 
-        .action-center.expanded .display-area {
+        .action-panel.open .display-area {
             opacity: 1;
             visibility: visible;
             pointer-events: auto;
@@ -253,7 +280,7 @@
             pointer-events: none;
         }
 
-        .action-center.expanded .aux-bar {
+        .action-panel.open .aux-bar {
             opacity: 1;
             visibility: visible;
             pointer-events: auto;
@@ -276,7 +303,6 @@
 
         .nav-btn:hover {
             background: rgba(0, 0, 0, 0.08);
-            transform: translateY(-2px);
         }
 
         .nav-btn.active {
@@ -291,8 +317,8 @@
 
         /* 生成按钮特化 */
         .gen-btn {
-            background: #000;
-            color: #fff;
+            background: rgba(0, 0, 0, 0.03);
+            color: var(--text-color);
             width: 48px;
             height: 48px;
             border-radius: 14px;
@@ -301,7 +327,11 @@
             justify-content: center;
             cursor: pointer;
             border: none;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s;
+        }
+
+        .gen-btn:hover {
+            background: rgba(0, 0, 0, 0.08);
         }
 
         /* Tab 内容面板 */
@@ -334,29 +364,19 @@
 
         /* 移动端适配 */
         @media (max-width: 640px) {
-            .action-center.expanded {
+            .action-panel {
                 height: 50vh;
                 bottom: 20px;
             }
 
             @supports (padding-bottom: env(safe-area-inset-bottom)) {
-                .action-center {
+                .action-button {
                     bottom: calc(30px + env(safe-area-inset-bottom));
                 }
 
-                .action-center.expanded {
+                .action-panel {
                     bottom: env(safe-area-inset-bottom);
                 }
-            }
-
-            .action-center.animating {
-                backdrop-filter: none;
-                box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
-            }
-
-            .action-center.animating::before,
-            .action-center.animating::after {
-                opacity: 0;
             }
         }
 
@@ -575,8 +595,9 @@
         </div>
     </div>
 
-    <div class="action-center" id="actionCenter" onclick="expandActionCenter()">
+    <div class="action-button" id="actionButton" onclick="expandActionCenter()" aria-label="打开面板" role="button"></div>
 
+    <div class="action-panel" id="actionPanel">
         <div class="display-area">
             <!-- 设置 Tab -->
             <div id="tab-settings" class="tab-content">
@@ -922,22 +943,9 @@
 
 
         // --- 操作中心逻辑 ---
-        let actionCenterAnimatingTimer = null;
-
-        function markActionCenterAnimating() {
-            const ac = document.getElementById('actionCenter');
-            ac.classList.add('animating');
-            if (actionCenterAnimatingTimer) {
-                clearTimeout(actionCenterAnimatingTimer);
-            }
-            actionCenterAnimatingTimer = setTimeout(() => {
-                ac.classList.remove('animating');
-                actionCenterAnimatingTimer = null;
-            }, 450);
-        }
-
         function expandActionCenter() {
-            const ac = document.getElementById('actionCenter');
+            const panel = document.getElementById('actionPanel');
+            const button = document.getElementById('actionButton');
 
             // 每次展开时，如果当前有生图结果，则重置回初始状态 (点击即回归)
             const previewImg = document.getElementById('mainPreview');
@@ -950,9 +958,9 @@
                 emptyState.classList.remove('loading');
             }
 
-            if (!ac.classList.contains('expanded')) {
-                markActionCenterAnimating();
-                ac.classList.add('expanded');
+            if (!panel.classList.contains('open')) {
+                panel.classList.add('open');
+                button.classList.add('hidden');
                 // 展开后默认显示对话 Tab
                 switchTab('tab-chat');
             }
@@ -960,8 +968,10 @@
 
         function collapseActionCenter(event) {
             if (event) event.stopPropagation();
-            markActionCenterAnimating();
-            document.getElementById('actionCenter').classList.remove('expanded');
+            const panel = document.getElementById('actionPanel');
+            const button = document.getElementById('actionButton');
+            panel.classList.remove('open');
+            button.classList.remove('hidden');
         }
 
         function switchTab(tabId, event) {
@@ -1014,7 +1024,7 @@
 
                 // 更新显示区域的预览
                 const up = document.getElementById('uploadPreview');
-                up.innerHTML = `<img src="${e.target.result}" style="max-width:100%; max-height:100%; object-fit:contain; border-radius: 16px; border: 2px dashed #000;">`;
+                up.innerHTML = `<img src="${e.target.result}" style="max-width:100%; max-height:100%; object-fit:contain; border-radius: 16px;">`;
 
                 // 同时更新主预览（如果还没生成过图）
                 const preview = document.getElementById('mainPreview');
@@ -1161,10 +1171,10 @@
             const emptyState = document.getElementById('emptyState');
             const emptySubtitle = emptyState.querySelector('.empty-subtitle');
             const preview = document.getElementById('mainPreview');
-            const actionCenter = document.getElementById('actionCenter');
+            const actionButton = document.getElementById('actionButton');
 
             btn.disabled = true;
-            actionCenter.classList.add('generating');
+            actionButton.classList.add('generating');
             emptyState.classList.add('loading');
             emptyState.style.display = 'flex';
             emptySubtitle.textContent = '美好值得等待';
@@ -1271,7 +1281,7 @@
                 btn.disabled = false;
                 emptyState.classList.remove('loading');
                 emptySubtitle.textContent = '美好值得等待';
-                actionCenter.classList.remove('generating');
+                actionButton.classList.remove('generating');
             }
         }
     </script>
