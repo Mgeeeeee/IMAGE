@@ -274,6 +274,60 @@
             resize: none;
         }
 
+        /* 移动端适配 */
+        @media (max-width: 640px) {
+            .preview-area {
+                padding: 20px 20px 120px 20px;
+            }
+
+            .bottom-toolbar {
+                bottom: 20px;
+                width: 90%;
+                max-width: 320px;
+                height: 64px;
+                padding: 0 12px;
+                gap: 8px;
+                border-radius: 100px;
+                /* 移动端使用更圆润的造型 */
+            }
+
+            .toolbar-btn {
+                width: 42px;
+                height: 42px;
+                border-radius: 12px;
+            }
+
+            .toolbar-btn svg {
+                width: 20px;
+                height: 20px;
+            }
+
+            .modal-content {
+                padding: 24px;
+                width: 95%;
+                border-radius: 20px;
+            }
+
+            .modal-header h2 {
+                font-size: 18px;
+            }
+
+            .form-group textarea {
+                min-height: 120px;
+            }
+
+            /* 适配 iOS 底部安全区域 */
+            @supports (padding-bottom: env(safe-area-inset-bottom)) {
+                .bottom-toolbar {
+                    bottom: calc(20px + env(safe-area-inset-bottom));
+                }
+
+                .preview-area {
+                    padding-bottom: calc(120px + env(safe-area-inset-bottom));
+                }
+            }
+        }
+
         /* 状态显示 */
         .loading-overlay {
             display: none;
