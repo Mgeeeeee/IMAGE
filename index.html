@@ -7,12 +7,12 @@
     <title>AI 图片生成器</title>
     <style>
         :root {
-            --primary-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            --primary-gradient: linear-gradient(135deg, #000000 0%, #334155 100%);
             --bg-color: #f1f5f9;
             --card-bg: rgba(255, 255, 255, 0.9);
             --text-color: #1e293b;
             --text-muted: #64748b;
-            --accent-color: #6366f1;
+            --accent-color: #000000;
             --toolbar-bg: rgba(255, 255, 255, 0.8);
             --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
         }
@@ -506,8 +506,8 @@
         function animateBackground() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // 绘制面 (半透明几何形)
-            ctx.fillStyle = 'rgba(99, 102, 241, 0.03)';
+            // 绘制面 (半透明几何形) - 改为深灰色/黑色透明
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.02)';
             shapes.forEach(shape => {
                 shape.angle += shape.speed;
                 ctx.beginPath();
@@ -515,9 +515,9 @@
                 ctx.fill();
             });
 
-            // 绘制连线和点
-            ctx.strokeStyle = 'rgba(99, 102, 241, 0.08)';
-            ctx.fillStyle = 'rgba(99, 102, 241, 0.15)';
+            // 绘制连线和点 - 改为深灰色/黑色透明
+            ctx.strokeStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
 
             particles.forEach((p, i) => {
                 p.x += p.vx;
