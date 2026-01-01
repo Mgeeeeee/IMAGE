@@ -104,61 +104,71 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
             z-index: 100;
-            width: max-content;
+            width: 100%;
+            max-width: 500px;
+            padding: 0 20px;
+        }
+
+        .toolbar-pill {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 16px;
+            background: var(--toolbar-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
         }
 
         .input-pill {
             background: var(--toolbar-bg);
             backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.4);
-            border-radius: 20px;
-            padding: 8px 16px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            border-radius: 24px;
+            padding: 6px 6px 6px 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
             display: flex;
             align-items: center;
-            width: 400px;
-            max-width: 90vw;
+            gap: 8px;
+            width: 100%;
         }
 
         .input-pill input {
             background: transparent;
             border: none;
             outline: none;
-            width: 100%;
-            padding: 8px;
+            flex: 1;
+            padding: 8px 0;
             font-size: 15px;
             color: var(--text-color);
-        }
-
-        .toolbar-pill {
-            height: 70px;
-            background: var(--toolbar-bg);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 12px;
-            padding: 0 16px;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
         }
 
         .toolbar-btn {
             background: white;
             border: 1px solid rgba(0, 0, 0, 0.05);
             color: var(--text-color);
-            width: 48px;
-            height: 48px;
-            border-radius: 14px;
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .toolbar-btn.primary {
+            background: var(--primary-gradient);
+            border: none;
+            color: white;
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
         }
 
         .toolbar-btn:hover {
@@ -459,9 +469,6 @@
     </div>
 
     <div class="bottom-toolbar">
-        <div class="input-pill">
-            <input type="text" id="tempPromptInput" placeholder="输入临时的灵感或描述...">
-        </div>
         <div class="toolbar-pill">
             <button class="toolbar-btn" onclick="openModal('settingsModal')" title="项目设置">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -482,6 +489,9 @@
                     <line x1="12" y1="3" x2="12" y2="15" />
                 </svg>
             </button>
+        </div>
+        <div class="input-pill">
+            <input type="text" id="tempPromptInput" placeholder="输入临时的灵感或描述...">
             <button class="toolbar-btn primary" onclick="generateImage()" id="sendBtn" title="开始创作">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                     <polyline points="22 2 15 22 11 13 2 9 22 2" />
