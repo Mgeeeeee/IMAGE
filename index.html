@@ -164,12 +164,17 @@
         }
 
         .toolbar-btn.primary {
-            background: var(--primary-gradient);
+            background: transparent;
             border: none;
-            color: white;
+            color: var(--text-color);
             width: 48px;
             height: 48px;
             border-radius: 14px;
+            box-shadow: none;
+        }
+
+        .toolbar-btn.primary svg {
+            color: var(--text-color);
         }
 
         .toolbar-btn:hover {
