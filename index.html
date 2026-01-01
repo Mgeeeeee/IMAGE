@@ -250,6 +250,39 @@
             border-color: #000;
         }
 
+        /* 模型选择快捷按钮 */
+        .model-btn-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .model-quick-btn {
+            flex: 1;
+            height: 44px;
+            background: #f1f5f9;
+            border: 1.5px solid transparent;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-color);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .model-quick-btn:hover {
+            background: #e2e8f0;
+        }
+
+        .model-quick-btn.active {
+            background: #000;
+            color: #fff;
+            border-color: #000;
+        }
+
         .toolbar-btn:hover {
             background: #f8fafc;
             transform: translateY(-4px);
@@ -600,12 +633,26 @@
                 <input type="password" id="apiKey" placeholder="输入从 tu-zi.com 获取的 Key" onchange="handleConfigChange()">
             </div>
             <div class="form-group">
-                <label>选择模型 <button onclick="fetchAndUpdateModels()"
-                        style="background:none;border:none;color:var(--accent-color);cursor:pointer;font-size:12px;font-weight:600;padding-left:10px">🔄
-                        刷新</button></label>
-                <select id="modelSelect" onchange="handleConfigChange()">
-                    <option value="">请先输入 API Key</option>
-                </select>
+                <label>选择模型</label>
+                <div class="model-btn-group">
+                    <button class="model-quick-btn" id="btn-banana"
+                        onclick="selectQuickModel('nano-banana-vip', 'btn-banana')">🍌</button>
+                    <button class="model-quick-btn" id="btn-banana-pro"
+                        onclick="selectQuickModel('nano-banana-2-vip', 'btn-banana-pro')">🍌 PRO</button>
+                    <button class="model-quick-btn" id="btn-others" onclick="showOtherModels()">OTHERS</button>
+                </div>
+                <div id="otherModelsContainer" style="display: none; margin-top: 10px;">
+                    <div
+                        style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                        <span style="font-size: 12px; color: var(--text-muted); font-weight: 600;">更多可用模型</span>
+                        <button onclick="fetchAndUpdateModels()"
+                            style="background:none;border:none;color:var(--accent-color);cursor:pointer;font-size:12px;font-weight:600;">🔄
+                            刷新</button>
+                    </div>
+                    <select id="modelSelect" onchange="handleConfigChange()">
+                        <option value="">点击刷新加载模型列表</option>
+                    </select>
+                </div>
             </div>
             <div class="form-group">
                 <label>输出比例</label>
@@ -724,6 +771,36 @@
         function autoResizeTextarea(element) {
             element.style.height = 'auto';
             element.style.height = element.scrollHeight + 'px';
+        }
+
+        function selectQuickModel(modelId, btnId) {
+            const select = document.getElementById('modelSelect');
+            const container = document.getElementById('otherModelsContainer');
+
+            // 设置模型值
+            select.value = modelId;
+            // 如果下拉列表里没有这个值（还没加载），直接存入 localStorage 也会生效
+            localStorage.setItem('model', modelId);
+
+            // 按钮高亮逻辑
+            document.querySelectorAll('.model-quick-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(btnId).classList.add('active');
+
+            // 隐藏下拉列表
+            container.style.display = 'none';
+            handleConfigChange();
+        }
+
+        function showOtherModels() {
+            const container = document.getElementById('otherModelsContainer');
+            document.querySelectorAll('.model-quick-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('btn-others').classList.add('active');
+            container.style.display = 'block';
+
+            // 触发刷新列表逻辑（如果还没加载过）
+            if (document.getElementById('modelSelect').options.length <= 1) {
+                fetchAndUpdateModels();
+            }
         }
         let accountBalance = null;
         let rawQuota = null;
