@@ -1149,9 +1149,9 @@
                         fetchKeyInfo();
                     } else throw new Error('未能从响应中提取到图片地址');
 
-                } catch (e) { showError(e.message); }
-                finally { btn.disabled = false; loading.classList.remove('active'); }
-            }
+                catch (e) { showError(e.message); }
+                    finally { btn.disabled = false; loading.classList.remove('active'); }
+                }
     </script>
 </body>
 
