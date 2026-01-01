@@ -527,8 +527,9 @@
     <script>
         let referenceImageBase64 = null;
         let availableModels = [];
-        let accountBalance = 0;
+        let accountBalance = null;
         let keyInfo = null;
+        let balanceFetched = false;
 
         // 加载保存的设置
         window.addEventListener('DOMContentLoaded', () => {
@@ -588,12 +589,15 @@
                 if (response.ok) {
                     const data = await response.json();
                     keyInfo = data;
+                    balanceFetched = true;
 
                     // 计算实际余额
-                    if (data.hard_limit_usd) {
+                    if (data.hard_limit_usd !== undefined) {
                         accountBalance = data.hard_limit_usd;
-                    } else if (data.quota) {
+                    } else if (data.quota !== undefined) {
                         accountBalance = data.quota / 500000;
+                    } else {
+                        accountBalance = 0;
                     }
 
                     updateBalanceDisplay();
@@ -615,9 +619,9 @@
             const balanceInfo = document.getElementById('balanceInfo');
             const balanceAmount = document.getElementById('balanceAmount');
 
-            if (accountBalance !== null) {
+            if (balanceFetched) {
                 balanceInfo.classList.add('active');
-                balanceAmount.textContent = `$${accountBalance.toFixed(4)}`;
+                balanceAmount.textContent = `$${(accountBalance || 0).toFixed(4)}`;
                 updateCostEstimate();
             }
         }
