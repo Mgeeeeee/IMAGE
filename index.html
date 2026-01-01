@@ -658,9 +658,16 @@
                 <label>输出比例</label>
                 <select id="sizeSelect" onchange="handleConfigChange()">
                     <option value="">跟随原图 (不指定)</option>
-                    <option value="1024x1024">1:1 正方形</option>
-                    <option value="1024x1792">9:16 竖版</option>
-                    <option value="1792x1024">16:9 横版</option>
+                    <option value="1:1">1:1 (1024x1024)</option>
+                    <option value="2:3">2:3 (832x1248)</option>
+                    <option value="3:2">3:2 (1248x832)</option>
+                    <option value="3:4">3:4 (864x1184)</option>
+                    <option value="4:3">4:3 (1184x864)</option>
+                    <option value="4:5">4:5 (896x1152)</option>
+                    <option value="5:4">5:4 (1152x896)</option>
+                    <option value="9:16">9:16 (768x1344)</option>
+                    <option value="16:9">16:9 (1344x768)</option>
+                    <option value="21:9">21:9 (1536x672)</option>
                 </select>
             </div>
         </div>
@@ -1080,7 +1087,16 @@
                     requestBody.messages[0].content.push({ type: 'image_url', image_url: { url: referenceImageBase64 } });
                 }
                 requestBody.messages[0].content.push({ type: 'text', text: fullPrompt });
-                if (size) requestBody.size = size;
+
+                if (size) {
+                    const isGoogleModel = model.toLowerCase().includes('gemini') || model.toLowerCase().includes('banana');
+                    if (isGoogleModel) {
+                        requestBody.imageConfig = { aspectRatio: size };
+                    } else {
+                        // 兼容那些使用 1024x1024 格式的其他模型
+                        requestBody.size = size.includes(':') ? size : size;
+                    }
+                }
 
                 const res = await fetch(`${apiUrl}/v1/chat/completions`, {
                     method: 'POST',
