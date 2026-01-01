@@ -726,6 +726,7 @@
             element.style.height = element.scrollHeight + 'px';
         }
         let accountBalance = null;
+        let rawQuota = null;
         let balanceFetched = false;
 
         // --- 动态背景逻辑 ---
@@ -886,9 +887,16 @@
                 if (response.ok) {
                     const data = await response.json();
                     balanceFetched = true;
-                    if (data.hard_limit_usd !== undefined) accountBalance = data.hard_limit_usd;
-                    else if (data.quota !== undefined) accountBalance = data.quota / 500000;
-                    else accountBalance = 0;
+                    if (data.quota !== undefined) {
+                        accountBalance = data.quota / 500000;
+                        rawQuota = data.quota;
+                    } else if (data.hard_limit_usd !== undefined) {
+                        accountBalance = data.hard_limit_usd;
+                        rawQuota = data.hard_limit_usd * 500000;
+                    } else {
+                        accountBalance = 0;
+                        rawQuota = 0;
+                    }
                     updateBalanceDisplay();
                 }
             } catch (error) { console.error('获取余额失败:', error); }
@@ -898,7 +906,9 @@
             const chip = document.getElementById('balanceDisplay');
             if (balanceFetched) {
                 chip.style.display = 'inline';
-                chip.textContent = `余额: $${(accountBalance || 0).toFixed(4)}`;
+                const formattedUSD = (accountBalance || 0).toFixed(4);
+                const formattedQuota = new Intl.NumberFormat().format(Math.floor(rawQuota || 0));
+                chip.textContent = `余额: $${formattedUSD} / ${formattedQuota}`;
             }
         }
 
