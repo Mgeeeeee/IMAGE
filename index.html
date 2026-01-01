@@ -103,7 +103,6 @@
             justify-content: center;
             align-items: center;
             text-align: center;
-            color: var(--text-muted);
         }
 
         .empty-logo {
@@ -128,387 +127,172 @@
             transition: all 0.5s ease;
         }
 
-        /* 底部工具栏 */
-        .bottom-toolbar {
+        /* 操作中心 (Action Center) - 魔幻变形容器 */
+        .action-center {
             position: fixed;
             bottom: 30px;
             left: 50%;
             transform: translateX(-50%);
+            width: 56px;
+            height: 56px;
+            background: var(--toolbar-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 28px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            overflow: hidden;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            gap: 12px;
-            z-index: 100;
-            width: 100%;
-            max-width: 500px;
-            padding: 0 20px;
-        }
-
-        .aux-buttons {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 12px;
-            width: 100%;
-        }
-
-        .input-pill {
-            background: var(--toolbar-bg);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            border-radius: 20px;
-            padding: 6px 6px 6px 16px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            width: 100%;
-        }
-
-        .input-pill input {
-            background: transparent;
-            border: none;
-            outline: none;
-            flex: 1;
-            padding: 8px 0;
-            font-size: 15px;
-            color: var(--text-color);
-        }
-
-        .toolbar-btn {
-            background: white;
-            border: 1px solid rgba(0, 0, 0, 0.05);
-            color: var(--text-color);
-            width: 44px;
-            height: 44px;
-            border-radius: 14px;
             cursor: pointer;
+        }
+
+        .action-center.expanded {
+            width: 95%;
+            max-width: 500px;
+            height: 500px;
+            border-radius: 32px;
+            cursor: default;
+            padding: 24px;
+        }
+
+        /* 初始圆点状态下的图标 */
+        .action-trigger {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 56px;
+            height: 56px;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: opacity 0.3s;
         }
 
-        .toolbar-btn.primary {
-            background: transparent;
+        .action-center.expanded .action-trigger {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* 显示区域 (Display Area) */
+        .display-area {
+            flex: 1;
+            width: 100%;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.4s ease 0.2s;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            display: none;
+            scrollbar-width: thin;
+        }
+
+        .action-center.expanded .display-area {
+            opacity: 1;
+            transform: translateY(0);
+            display: block;
+        }
+
+        /* 辅助工具栏 (Aux Bar) */
+        .aux-bar {
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            opacity: 0;
+            transition: all 0.4s ease 0.3s;
+        }
+
+        .action-center.expanded .aux-bar {
+            opacity: 1;
+        }
+
+        .nav-btn {
+            background: rgba(0, 0, 0, 0.03);
             border: none;
-            color: var(--text-color);
             width: 48px;
             height: 48px;
             border-radius: 14px;
-            box-shadow: none;
-        }
-
-        .toolbar-btn.primary svg {
-            color: var(--text-color);
-        }
-
-        .modal-action-btn {
-            width: 100%;
-            height: 54px;
-            background: #000;
-            color: #fff;
-            border: none;
-            border-radius: 16px;
-            font-size: 14px;
-            font-weight: 700;
-            letter-spacing: 4px;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-top: 10px;
-            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: var(--text-color);
         }
 
-        .modal-action-btn:hover {
-            background: #334155;
+        .nav-btn:hover {
+            background: rgba(0, 0, 0, 0.08);
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
         }
 
-        .modal-action-btn:active {
-            transform: translateY(0);
-        }
-
-        /* 预设标签样式 */
-        .preset-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 24px;
-        }
-
-        .preset-chip {
-            padding: 8px 16px;
-            background: #f1f5f9;
-            border: 1.5px solid transparent;
-            border-radius: 100px;
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-color);
-            cursor: pointer;
-            transition: all 0.2s;
-            user-select: none;
-        }
-
-        .preset-chip:hover {
-            background: #e2e8f0;
-        }
-
-        .preset-chip.active {
+        .nav-btn.active {
             background: #000;
             color: #fff;
-            border-color: #000;
         }
 
-        /* 模型选择快捷按钮 */
-        .model-btn-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 12px;
-        }
-
-        .model-quick-btn {
-            flex: 1;
-            height: 44px;
-            background: #f1f5f9;
-            border: 1.5px solid transparent;
-            border-radius: 12px;
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--text-color);
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .model-quick-btn:hover {
-            background: #e2e8f0;
-        }
-
-        .model-quick-btn.active {
-            background: #000;
-            color: #fff;
-            border-color: #000;
-        }
-
-        .toolbar-btn:hover {
-            background: #f8fafc;
-            transform: translateY(-4px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        }
-
-        .toolbar-btn.primary:hover {
-            background: transparent;
-            box-shadow: none;
-        }
-
-        .toolbar-btn svg {
+        .nav-btn svg {
             width: 22px;
             height: 22px;
-            color: var(--accent-color);
         }
 
-
-
-        .toolbar-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none !important;
-        }
-
-        /* 弹窗系统 */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(15, 23, 42, 0.3);
-            backdrop-filter: blur(8px);
-            z-index: 1000;
+        /* 生成按钮特化 */
+        .gen-btn {
+            background: #000;
+            color: #fff;
+            width: 54px;
+            height: 54px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
             justify-content: center;
-            align-items: center;
-            transition: all 0.3s ease;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: white;
-            width: 95%;
-            max-width: 500px;
-            max-height: 85vh;
-            padding: 32px;
-            border-radius: 24px;
-            position: relative;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            animation: modalPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            overflow-y: auto;
-            scrollbar-width: thin;
-            scrollbar-color: #cbd5e1 transparent;
-        }
-
-        /* 自定义滚动条样式 */
-        .modal-content::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .modal-content::-webkit-scrollbar-thumb {
-            background-color: #cbd5e1;
-            border-radius: 10px;
-        }
-
-        @keyframes modalPop {
-            0% {
-                transform: scale(0.9);
-                opacity: 0;
-            }
-
-            100% {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-        }
-
-        .modal-header h2 {
-            font-size: 22px;
-            font-weight: 700;
-            color: var(--text-color);
-        }
-
-        .close-btn {
-            background: #f1f5f9;
-            border: none;
-            color: var(--text-muted);
             cursor: pointer;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            transition: all 0.2s;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
         }
 
-        .close-btn:hover {
-            background: #e2e8f0;
-            color: var(--text-color);
+        /* Tab 内容面板 */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s ease;
         }
 
-        /* 表单样式 */
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
+        .tab-content.active {
             display: block;
-            margin-bottom: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-muted);
         }
 
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            background: #f8fafc;
-            border: 2px solid #e2e8f0;
-            padding: 14px;
-            border-radius: 12px;
-            color: var(--text-color);
-            font-size: 15px;
-            outline: none;
-            transition: all 0.2s;
-        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
 
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            border-color: var(--accent-color);
-            background: white;
-            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
-        }
-
-        .form-group textarea {
-            min-height: 120px;
-            max-height: none;
-            resize: none;
-            overflow-y: hidden;
-            line-height: 1.6;
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         /* 移动端适配 */
         @media (max-width: 640px) {
-            .preview-area {
-                padding: 20px 20px 180px 20px;
-            }
-
-            .bottom-toolbar {
+            .action-center.expanded {
+                height: 80vh;
                 bottom: 20px;
-                width: 95%;
             }
 
-            .input-pill {
-                width: 100%;
-            }
-
-            .aux-buttons {
-                gap: 8px;
-            }
-
-            .toolbar-btn {
-                width: 42px;
-                height: 42px;
-            }
-
-            .toolbar-btn svg {
-                width: 20px;
-                height: 20px;
-            }
-
-            .modal-content {
-                padding: 24px;
-                width: 95%;
-                border-radius: 20px;
-            }
-
-            .modal-header h2 {
-                font-size: 18px;
-            }
-
-            .form-group textarea {
-                min-height: 120px;
-            }
-
-            /* 适配 iOS 底部安全区域 */
             @supports (padding-bottom: env(safe-area-inset-bottom)) {
-                .bottom-toolbar {
-                    bottom: calc(20px + env(safe-area-inset-bottom));
+                .action-center {
+                    bottom: calc(30px + env(safe-area-inset-bottom));
                 }
 
-                .preview-area {
-                    padding-bottom: calc(180px + env(safe-area-inset-bottom));
+                .action-center.expanded {
+                    bottom: env(safe-area-inset-bottom);
                 }
             }
         }
+
 
         /* 状态显示 - 实心统一呼吸效果 */
         .empty-state.loading .empty-logo,
@@ -579,114 +363,133 @@
         </div>
     </div>
 
-    <div class="bottom-toolbar">
-        <div class="aux-buttons">
-            <button class="toolbar-btn" onclick="openModal('settingsModal')" title="项目设置">
+    <div class="action-center" id="actionCenter" onclick="expandActionCenter()">
+        <div class="action-trigger">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                style="width: 24px; height: 24px;">
+                <path d="M12 5v14M5 12h14" />
+            </svg>
+        </div>
+
+        <div class="display-area">
+            <!-- 设置 Tab -->
+            <div id="tab-settings" class="tab-content">
+                <div class="modal-header">
+                    <h2>个性化配置</h2>
+                    <button class="close-btn" onclick="collapseActionCenter(event)">&times;</button>
+                </div>
+                <div class="form-group" style="display: none;">
+                    <label>API 地址</label>
+                    <input type="text" id="apiUrl" value="https://api.tu-zi.com">
+                </div>
+                <div class="form-group">
+                    <label>API Key <span id="balanceDisplay" class="balance-chip" style="display:none">余额:
+                            --</span></label>
+                    <input type="password" id="apiKey" placeholder="输入从 tu-zi.com 获取的 Key"
+                        onchange="handleConfigChange()">
+                </div>
+                <div class="form-group">
+                    <label>选择模型</label>
+                    <div class="model-btn-group">
+                        <button class="model-quick-btn" id="btn-banana"
+                            onclick="selectQuickModel('nano-banana-vip', 'btn-banana')">🍌</button>
+                        <button class="model-quick-btn" id="btn-banana-pro"
+                            onclick="selectQuickModel('nano-banana-2-vip', 'btn-banana-pro')">🍌 PRO</button>
+                        <button class="model-quick-btn" id="btn-others" onclick="showOtherModels()">OTHERS</button>
+                    </div>
+                    <div id="otherModelsContainer" style="display: none; margin-top: 10px;">
+                        <select id="modelSelect" onchange="handleConfigChange()">
+                            <option value="">点击下方刷新获取列表</option>
+                        </select>
+                        <button onclick="fetchAndUpdateModels()" class="modal-action-btn"
+                            style="height: 40px; margin-top: 8px; font-size: 12px;">🔄 刷新模型列表</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>输出比例</label>
+                    <select id="sizeSelect" onchange="handleConfigChange()">
+                        <option value="">跟随原图 (不指定)</option>
+                        <option value="1:1">1:1 (1024x1024)</option>
+                        <option value="9:16">9:16 (768x1344)</option>
+                        <option value="16:9">16:9 (1344x768)</option>
+                        <option value="21:9">21:9 (1536x672)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 风格 Tab -->
+            <div id="tab-style" class="tab-content">
+                <div class="modal-header">
+                    <h2>配置固定风格</h2>
+                    <button class="close-btn" onclick="collapseActionCenter(event)">&times;</button>
+                </div>
+                <div class="form-group">
+                    <label>预设风格库</label>
+                    <div class="preset-container" id="presetContainer"></div>
+                </div>
+                <div class="form-group">
+                    <label>风格描述 (Style Prompt)</label>
+                    <textarea id="promptInput" placeholder="极简风格，电影光效..."></textarea>
+                </div>
+            </div>
+
+            <!-- 上传 Tab -->
+            <div id="tab-upload" class="tab-content">
+                <div class="modal-header">
+                    <h2>参考图像</h2>
+                    <button class="close-btn" onclick="collapseActionCenter(event)">&times;</button>
+                </div>
+                <div id="uploadPreview"
+                    style="width: 100%; aspect-ratio: 1; background: #f1f5f9; border-radius: 16px; border: 2px dashed #cbd5e1; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 16px;">
+                    <p style="color: var(--text-muted); font-size: 14px;">尚未上传图片</p>
+                </div>
+                <button class="modal-action-btn" onclick="document.getElementById('imageUpload').click()">
+                    重新上传图像
+                </button>
+            </div>
+
+            <!-- 对话/生成 Tab -->
+            <div id="tab-chat" class="tab-content active">
+                <div class="modal-header">
+                    <h2>灵感对话</h2>
+                    <button class="close-btn" onclick="collapseActionCenter(event)">&times;</button>
+                </div>
+                <div class="form-group">
+                    <label>即时灵感 (Prompt)</label>
+                    <textarea id="tempPromptInput" placeholder="输入你想生成的画面描述..." style="min-height: 200px;"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="aux-bar">
+            <button class="nav-btn" onclick="switchTab('tab-settings', event)" title="设置">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="12" cy="12" r="3" />
                     <path
                         d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
                 </svg>
             </button>
-            <button class="toolbar-btn" onclick="openModal('promptModal')" title="固定风格提示词">
+            <button class="nav-btn" onclick="switchTab('tab-style', event)" title="风格">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
                 </svg>
             </button>
-            <button class="toolbar-btn" onclick="document.getElementById('imageUpload').click()" title="参考图片">
+            <button class="nav-btn" onclick="switchTab('tab-upload', event)" title="图像">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                    <polyline points="17 8 12 3 7 8" />
-                    <line x1="12" y1="3" x2="12" y2="15" />
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12" />
                 </svg>
             </button>
-        </div>
-        <div class="input-pill">
-            <input type="text" id="tempPromptInput" placeholder="输入临时的灵感或描述...">
-            <button class="toolbar-btn primary" onclick="generateImage()" id="sendBtn" title="开始创作">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <button class="nav-btn" onclick="switchTab('tab-chat', event)" id="chatBtn" title="对话">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 1 1-7.6-11.7 8.38 8.38 0 0 1 3.8.9L21 3.5z" />
+                </svg>
+            </button>
+            <button class="gen-btn" onclick="triggerGeneration(event)" id="sendBtn" title="发射">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    style="width: 24px; height: 24px;">
                     <polyline points="22 2 15 22 11 13 2 9 22 2" />
                     <line x1="22" y1="2" x2="11" y2="13" />
                 </svg>
-            </button>
-        </div>
-    </div>
-
-    <!-- 设置弹窗 -->
-    <div class="modal" id="settingsModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>个性化配置</h2>
-                <button class="close-btn" onclick="closeModal('settingsModal')">&times;</button>
-            </div>
-            <div class="form-group" style="display: none;">
-                <label>API 地址</label>
-                <input type="text" id="apiUrl" value="https://api.tu-zi.com">
-            </div>
-            <div class="form-group">
-                <label>API Key <span id="balanceDisplay" class="balance-chip" style="display:none">余额: --</span></label>
-                <input type="password" id="apiKey" placeholder="输入从 tu-zi.com 获取的 Key" onchange="handleConfigChange()">
-            </div>
-            <div class="form-group">
-                <label>选择模型</label>
-                <div class="model-btn-group">
-                    <button class="model-quick-btn" id="btn-banana"
-                        onclick="selectQuickModel('nano-banana-vip', 'btn-banana')">🍌</button>
-                    <button class="model-quick-btn" id="btn-banana-pro"
-                        onclick="selectQuickModel('nano-banana-2-vip', 'btn-banana-pro')">🍌 PRO</button>
-                    <button class="model-quick-btn" id="btn-others" onclick="showOtherModels()">OTHERS</button>
-                </div>
-                <div id="otherModelsContainer" style="display: none; margin-top: 10px;">
-                    <div
-                        style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                        <span style="font-size: 12px; color: var(--text-muted); font-weight: 600;">更多可用模型</span>
-                        <button onclick="fetchAndUpdateModels()"
-                            style="background:none;border:none;color:var(--accent-color);cursor:pointer;font-size:12px;font-weight:600;">🔄
-                            刷新</button>
-                    </div>
-                    <select id="modelSelect" onchange="handleConfigChange()">
-                        <option value="">点击刷新加载模型列表</option>
-                    </select>
-                </div>
-            </div>
-            <div class="form-group">
-                <label>输出比例</label>
-                <select id="sizeSelect" onchange="handleConfigChange()">
-                    <option value="">跟随原图 (不指定)</option>
-                    <option value="1:1">1:1 (1024x1024)</option>
-                    <option value="2:3">2:3 (832x1248)</option>
-                    <option value="3:2">3:2 (1248x832)</option>
-                    <option value="3:4">3:4 (864x1184)</option>
-                    <option value="4:3">4:3 (1184x864)</option>
-                    <option value="4:5">4:5 (896x1152)</option>
-                    <option value="5:4">5:4 (1152x896)</option>
-                    <option value="9:16">9:16 (768x1344)</option>
-                    <option value="16:9">16:9 (1344x768)</option>
-                    <option value="21:9">21:9 (1536x672)</option>
-                </select>
-            </div>
-        </div>
-    </div>
-
-    <!-- 提示词弹窗 -->
-    <div class="modal" id="promptModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>配置固定风格</h2>
-                <button class="close-btn" onclick="closeModal('promptModal')">&times;</button>
-            </div>
-            <div class="form-group">
-                <label>预设风格库 (Presets)</label>
-                <div class="preset-container" id="presetContainer">
-                    <!-- 动态加载预设 -->
-                </div>
-            </div>
-            <div class="form-group">
-                <label>风格描述 (Style Prompt)</label>
-                <textarea id="promptInput" placeholder="描述你希望保持的长期风格或背景，例如：'极简主义，3D 渲染，电影级光效'..."></textarea>
-            </div>
-            <button class="modal-action-btn" onclick="closeModal('promptModal')">
-                同步风格配置
             </button>
         </div>
     </div>
@@ -906,23 +709,108 @@
             localStorage.setItem('model', document.getElementById('modelSelect').value);
             localStorage.setItem('size', document.getElementById('sizeSelect').value);
 
-            const apiKey = document.getElementById('apiKey').value.trim();
             if (apiKey) {
                 fetchAndUpdateModels();
                 fetchKeyInfo();
             }
         }
 
-        function openModal(id) {
-            document.getElementById(id).classList.add('active');
-            if (id === 'promptModal') {
-                const input = document.getElementById('promptInput');
-                setTimeout(() => autoResizeTextarea(input), 50); // 等待弹窗动效开启后计算
+        const presetData = {
+            '浮墨': `# 浮墨\n根据用户要求，结合语境氛围，生成图片\n\n## 图片要求\n- 纹理：宣纸、金箔\n- 元素：东方、意象\n- 字体：手写、书法\n- 结构：疏密、有致\n- 排版：呼吸、留白\n\n## 输出\n- 直接生成图片，不要多余解释.`,
+            '流线': `# 流线\n直接根据以下要求生成插画，不要提问，不要解释\n\n## 具体任务\n- 自动理解提炼材料主体\n- 创作一副极简风格插画\n\n## 插画风格\n- 背景：干净、米色(#F1EBDE)\n- 线条：流畅、克制、连续\n- 颜色：黑色为主、克制的点缀色\n- 整体：故事、交互、氛围、自然\n\n## 三申五令\n- 禁止文字符号\n\n## 输出\n- 请直接输出符合要求的图片，不要多余解释.`,
+            '线条': `# 线条\n直接根据以下要求为照片添加线条插画，不要提问，不要解释\n\n## 视觉风格\n- 线条：白色/黑色、简约、干净\n- 主体：线条构成人物/动物/植物/日常物品\n- 比例：主体的比例与透视需与照片场景匹配\n- 融入：主体与照片场景自然有效互动，仿佛原本就存在\n- 整体：主体与照片相辅相成，形成一个场景故事\n- 想象：主体与照片的融合需出人意料 but 合乎情理，富有想象力\n\n## 三申五令\n- 禁止对原图片进行修改，只添加线条插画\n- 禁止任何填充颜色，仅使用线条表现形体\n\n## 输出\n- 直接输出编辑后的图片，不要多余解释.`
+        };
+
+        function initPresets() {
+            const container = document.getElementById('presetContainer');
+            if (!container) return;
+            container.innerHTML = '';
+            Object.keys(presetData).forEach(name => {
+                const chip = document.createElement('div');
+                chip.className = 'preset-chip';
+                chip.textContent = name;
+                chip.onclick = () => selectPreset(name, chip);
+                container.appendChild(chip);
+            });
+        }
+
+        function selectPreset(name, chipElement) {
+            const input = document.getElementById('promptInput');
+            input.value = presetData[name];
+            document.querySelectorAll('.preset-chip').forEach(c => c.classList.remove('active'));
+            chipElement.classList.add('active');
+            autoResizeTextarea(input);
+        }
+
+        function autoResizeTextarea(element) {
+            element.style.height = 'auto';
+            element.style.height = element.scrollHeight + 'px';
+        }
+
+        function selectQuickModel(modelId, btnId) {
+            const select = document.getElementById('modelSelect');
+            select.value = modelId;
+            localStorage.setItem('model', modelId);
+            document.querySelectorAll('.model-quick-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(btnId).classList.add('active');
+            document.getElementById('otherModelsContainer').style.display = 'none';
+            handleConfigChange();
+        }
+
+        function showOtherModels() {
+            const container = document.getElementById('otherModelsContainer');
+            document.querySelectorAll('.model-quick-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('btn-others').classList.add('active');
+            container.style.display = 'block';
+        }
+
+        // --- 操作中心逻辑 ---
+        function expandActionCenter() {
+            const ac = document.getElementById('actionCenter');
+            if (!ac.classList.contains('expanded')) {
+                ac.classList.add('expanded');
+                // 展开后默认显示对话 Tab
+                switchTab('tab-chat');
             }
         }
 
-        function closeModal(id) {
-            document.getElementById(id).classList.remove('active');
+        function collapseActionCenter(event) {
+            if (event) event.stopPropagation();
+            document.getElementById('actionCenter').classList.remove('expanded');
+        }
+
+        function switchTab(tabId, event) {
+            if (event) event.stopPropagation();
+
+            // 切换内容
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+
+            // 切换按钮状态
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            // 查找对应的按钮并加 active (这里简单处理，通过传参或索引)
+            if (event && event.currentTarget) {
+                event.currentTarget.classList.add('active');
+            } else if (tabId === 'tab-chat') {
+                document.getElementById('chatBtn').classList.add('active');
+            }
+        }
+
+        function triggerGeneration(event) {
+            if (event) event.stopPropagation();
+            collapseActionCenter();
+            setTimeout(generateImage, 400); // 等待收缩动画过半再开始
+        }
+
+        // 兼容旧代码的弹窗调用
+        function openModal(id) {
+            expandActionCenter();
+            if (id === 'settingsModal') switchTab('tab-settings');
+            if (id === 'promptModal') switchTab('tab-style');
+        }
+
+        function closeModal() {
+            collapseActionCenter();
         }
 
         window.onclick = function (event) {
@@ -938,7 +826,20 @@
             const reader = new FileReader();
             reader.onload = (e) => {
                 referenceImageBase64 = e.target.result;
-                displayPreview(e.target.result);
+
+                // 更新显示区域的预览
+                const up = document.getElementById('uploadPreview');
+                up.innerHTML = `<img src="${e.target.result}" style="width:100%; height:100%; object-fit:cover;">`;
+
+                // 同时更新主预览（如果还没生成过图）
+                const preview = document.getElementById('mainPreview');
+                if (!preview.src || preview.style.display === 'none') {
+                    displayPreview(e.target.result);
+                }
+
+                // 切换到上传 Tab 让用户确认
+                expandActionCenter();
+                switchTab('tab-upload');
             };
             reader.readAsDataURL(file);
         }
