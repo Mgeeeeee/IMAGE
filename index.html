@@ -936,11 +936,11 @@
             const current = select.value;
             select.innerHTML = '';
 
-            // 筛选 google 系列（关键词：gemini, banana）
-            const filtered = models.filter(m =>
-                m.id.toLowerCase().includes('gemini') ||
-                m.id.toLowerCase().includes('banana')
-            );
+            // 筛选 google 系列（关键词：banana 或 gemini+image）
+            const filtered = models.filter(m => {
+                const id = m.id.toLowerCase();
+                return id.includes('banana') || (id.includes('gemini') && id.includes('image'));
+            });
 
             if (filtered.length === 0) {
                 const opt = document.createElement('option');
