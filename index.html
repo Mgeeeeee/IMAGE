@@ -132,7 +132,7 @@
             position: fixed;
             bottom: 30px;
             left: 50%;
-            transform: translateX(-50%);
+            transform: translate3d(-50%, 0, 0);
             width: 56px;
             max-width: 56px;
             height: 56px;
@@ -151,6 +151,7 @@
             display: flex;
             flex-direction: column;
             cursor: pointer;
+            will-change: width, height, border-radius, padding, transform;
         }
 
         /* 魔法光晕层 */
@@ -346,6 +347,16 @@
                 .action-center.expanded {
                     bottom: env(safe-area-inset-bottom);
                 }
+            }
+
+            .action-center.animating {
+                backdrop-filter: none;
+                box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+            }
+
+            .action-center.animating::before,
+            .action-center.animating::after {
+                opacity: 0;
             }
         }
 
@@ -911,6 +922,20 @@
 
 
         // --- 操作中心逻辑 ---
+        let actionCenterAnimatingTimer = null;
+
+        function markActionCenterAnimating() {
+            const ac = document.getElementById('actionCenter');
+            ac.classList.add('animating');
+            if (actionCenterAnimatingTimer) {
+                clearTimeout(actionCenterAnimatingTimer);
+            }
+            actionCenterAnimatingTimer = setTimeout(() => {
+                ac.classList.remove('animating');
+                actionCenterAnimatingTimer = null;
+            }, 450);
+        }
+
         function expandActionCenter() {
             const ac = document.getElementById('actionCenter');
 
@@ -926,6 +951,7 @@
             }
 
             if (!ac.classList.contains('expanded')) {
+                markActionCenterAnimating();
                 ac.classList.add('expanded');
                 // 展开后默认显示对话 Tab
                 switchTab('tab-chat');
@@ -934,6 +960,7 @@
 
         function collapseActionCenter(event) {
             if (event) event.stopPropagation();
+            markActionCenterAnimating();
             document.getElementById('actionCenter').classList.remove('expanded');
         }
 
