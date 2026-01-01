@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 图片生成器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            height: 90vh;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .header {
+            padding: 20px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .settings-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .settings-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .settings-panel {
+            display: none;
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .settings-panel.active {
+            display: block;
+        }
+
+        .balance-info {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .balance-info.active {
+            display: block;
+        }
+
+        .balance-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .balance-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .refresh-balance-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.3s;
+        }
+
+        .refresh-balance-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .balance-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .balance-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .balance-label {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-bottom: 4px;
+        }
+
+        .balance-value {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .cost-estimate {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 13px;
+            opacity: 0.95;
+        }
+
+        .setting-group {
+            margin-bottom: 15px;
+        }
+
+        .setting-group label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .refresh-models-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+            margin-left: 8px;
+        }
+
+        .refresh-models-btn:hover {
+            background: #5568d3;
+        }
+
+        .refresh-models-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .refresh-models-btn svg {
+            display: block;
+        }
+
+        .setting-group input,
+        .setting-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .setting-group input:focus,
+        .setting-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .image-gallery {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .image-gallery::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .image-gallery::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .image-gallery::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+
+        .image-gallery::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #999;
+            padding: 60px 20px;
+        }
+
+        .empty-state svg {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+        }
+
+        .image-item {
+            width: 100%;
+            max-width: 600px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .image-item img {
+            width: 100%;
+            display: block;
+        }
+
+        .image-info {
+            padding: 15px;
+            font-size: 14px;
+            color: #666;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .loading-item {
+            width: 100%;
+            max-width: 600px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            margin: 0 auto 20px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .input-area {
+            padding: 20px 30px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .reference-image-preview {
+            display: none;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .reference-image-preview.active {
+            display: block;
+        }
+
+        .reference-image-preview img {
+            max-width: 150px;
+            max-height: 150px;
+            border-radius: 8px;
+            border: 2px solid #667eea;
+        }
+
+        .remove-image-btn {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ff4444;
+            color: white;
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            line-height: 1;
+        }
+
+        .input-wrapper {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .input-group {
+            flex: 1;
+            position: relative;
+        }
+
+        .input-group textarea {
+            width: 100%;
+            padding: 15px;
+            padding-right: 50px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 15px;
+            resize: none;
+            font-family: inherit;
+            min-height: 60px;
+            max-height: 150px;
+        }
+
+        .input-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .upload-btn {
+            position: absolute;
+            right: 10px;
+            bottom: 10px;
+            background: #f0f0f0;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+        }
+
+        .upload-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .send-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .send-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .send-btn:active {
+            transform: translateY(0);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>AI 图片生成器</h1>
+            <button class="settings-btn" onclick="toggleSettings()">设置</button>
+        </div>
+
+        <div class="settings-panel" id="settingsPanel">
+            <div class="balance-info" id="balanceInfo">
+                <div class="balance-header">
+                    <h3>账户信息</h3>
+                    <button class="refresh-balance-btn" onclick="refreshBalance()">刷新</button>
+                </div>
+                <div class="balance-details">
+                    <div class="balance-item">
+                        <div class="balance-label">账户余额</div>
+                        <div class="balance-value" id="balanceAmount">--</div>
+                    </div>
+                    <div class="balance-item">
+                        <div class="balance-label">预估单次费用</div>
+                        <div class="balance-value" id="estimatedCost">--</div>
+                    </div>
+                </div>
+                <div class="cost-estimate" id="costDetails">
+                    根据所选模型和尺寸估算单次生图费用
+                </div>
+            </div>
+
+            <div class="setting-group">
+                <label>API Key</label>
+                <input type="password" id="apiKey" placeholder="请输入你的 API Key" onchange="handleApiKeyChange()">
+            </div>
+            <div class="setting-group">
+                <label>API 地址</label>
+                <input type="text" id="apiUrl" value="https://api.tu-zi.com" placeholder="API 基础地址" onchange="handleApiKeyChange()">
+            </div>
+            <div class="setting-group">
+                <label>
+                    模型选择
+                    <button class="refresh-models-btn" onclick="fetchAndUpdateModels()" title="刷新模型列表">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+                        </svg>
+                    </button>
+                </label>
+                <select id="modelSelect">
+                    <option value="">请先输入 API Key 并连接</option>
+                </select>
+                <div id="modelLoadingStatus" style="display: none; margin-top: 8px; font-size: 12px; color: #667eea;">
+                    正在加载模型列表...
+                </div>
+            </div>
+            <div class="setting-group">
+                <label>图片尺寸</label>
+                <select id="sizeSelect">
+                    <option value="1024x1024">1024x1024 (正方形)</option>
+                    <option value="1024x1792">1024x1792 (竖版)</option>
+                    <option value="1792x1024">1792x1024 (横版)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="image-gallery" id="imageGallery">
+            <div class="empty-state">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                    <polyline points="21 15 16 10 5 21"/>
+                </svg>
+                <p>输入提示词开始生成图片</p>
+            </div>
+        </div>
+
+        <div class="input-area">
+            <div id="errorMessage" class="error-message" style="display: none;"></div>
+            <div class="reference-image-preview" id="referencePreview">
+                <img id="previewImg" src="" alt="参考图片">
+                <button class="remove-image-btn" onclick="removeReferenceImage()">×</button>
+            </div>
+            <div class="input-wrapper">
+                <div class="input-group">
+                    <textarea
+                        id="promptInput"
+                        placeholder="描述你想要生成的图片..."
+                        onkeydown="handleKeyPress(event)"
+                    ></textarea>
+                    <button class="upload-btn" onclick="document.getElementById('imageUpload').click()" title="上传参考图片">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                            <circle cx="8.5" cy="8.5" r="1.5"/>
+                            <polyline points="21 15 16 10 5 21"/>
+                        </svg>
+                    </button>
+                    <input type="file" id="imageUpload" accept="image/*" onchange="handleImageUpload(event)">
+                </div>
+                <button class="send-btn" onclick="generateImage()" id="sendBtn">生成</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let referenceImageBase64 = null;
+        let availableModels = [];
+        let accountBalance = 0;
+        let keyInfo = null;
+
+        // 加载保存的设置
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedApiKey = localStorage.getItem('apiKey');
+            const savedApiUrl = localStorage.getItem('apiUrl');
+            const savedModel = localStorage.getItem('model');
+            const savedSize = localStorage.getItem('size');
+
+            if (savedApiKey) document.getElementById('apiKey').value = savedApiKey;
+            if (savedApiUrl) document.getElementById('apiUrl').value = savedApiUrl;
+            if (savedSize) document.getElementById('sizeSelect').value = savedSize;
+
+            // 如果有保存的 API Key，自动获取模型列表和余额信息
+            if (savedApiKey && savedApiUrl) {
+                fetchAndUpdateModels().then(() => {
+                    if (savedModel) {
+                        document.getElementById('modelSelect').value = savedModel;
+                    }
+                });
+                fetchKeyInfo();
+            }
+
+            // 保存设置的监听器
+            document.getElementById('apiKey').addEventListener('change', (e) => {
+                localStorage.setItem('apiKey', e.target.value);
+            });
+            document.getElementById('apiUrl').addEventListener('change', (e) => {
+                localStorage.setItem('apiUrl', e.target.value);
+            });
+            document.getElementById('modelSelect').addEventListener('change', (e) => {
+                localStorage.setItem('model', e.target.value);
+                updateCostEstimate();
+            });
+            document.getElementById('sizeSelect').addEventListener('change', (e) => {
+                localStorage.setItem('size', e.target.value);
+                updateCostEstimate();
+            });
+        });
+
+        // 查询 API Key 信息和余额
+        async function fetchKeyInfo() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const apiUrl = document.getElementById('apiUrl').value.trim();
+
+            if (!apiKey) return;
+
+            try {
+                // 根据文档: quota是余额额度，实际余额=quota/500000
+                const response = await fetch(`${apiUrl}/v1/dashboard/billing/subscription`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${apiKey}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    keyInfo = data;
+
+                    // 计算实际余额
+                    if (data.hard_limit_usd) {
+                        accountBalance = data.hard_limit_usd;
+                    } else if (data.quota) {
+                        accountBalance = data.quota / 500000;
+                    }
+
+                    updateBalanceDisplay();
+                } else {
+                    console.warn('获取余额信息失败，尝试备用接口');
+                }
+            } catch (error) {
+                console.error('获取 Key 信息失败:', error);
+            }
+        }
+
+        // 刷新余额
+        async function refreshBalance() {
+            await fetchKeyInfo();
+        }
+
+        // 更新余额显示
+        function updateBalanceDisplay() {
+            const balanceInfo = document.getElementById('balanceInfo');
+            const balanceAmount = document.getElementById('balanceAmount');
+
+            if (accountBalance !== null) {
+                balanceInfo.classList.add('active');
+                balanceAmount.textContent = `$${accountBalance.toFixed(4)}`;
+                updateCostEstimate();
+            }
+        }
+
+        // 更新费用估算
+        function updateCostEstimate() {
+            const model = document.getElementById('modelSelect').value;
+            const size = document.getElementById('sizeSelect').value;
+            const estimatedCost = document.getElementById('estimatedCost');
+            const costDetails = document.getElementById('costDetails');
+
+            if (!model) {
+                estimatedCost.textContent = '--';
+                costDetails.textContent = '请先选择模型';
+                return;
+            }
+
+            // 根据模型和尺寸估算费用（实际费用以厂商为准）
+            const cost = estimateGenerationCost(model, size);
+
+            estimatedCost.textContent = `$${cost.toFixed(4)}`;
+
+            // 计算可生成次数
+            const remainingGenerations = accountBalance > 0 ? Math.floor(accountBalance / cost) : 0;
+            costDetails.textContent = `使用 ${model} 生成 ${size} 图片，预计剩余可生成 ${remainingGenerations} 次`;
+        }
+
+        // 估算单次生成费用（基于常见价格，实际以厂商为准）
+        function estimateGenerationCost(model, size) {
+            const modelLower = model.toLowerCase();
+
+            // 基础费用（不同模型不同价格）
+            let baseCost = 0.01; // 默认 $0.01
+
+            // Google 系列
+            if (modelLower.includes('nano') || modelLower.includes('banana')) {
+                baseCost = 0.008;
+            } else if (modelLower.includes('imagen-3')) {
+                baseCost = 0.04;
+            }
+            // Flux 系列
+            else if (modelLower.includes('flux-1.1-pro')) {
+                baseCost = 0.04;
+            } else if (modelLower.includes('flux-pro')) {
+                baseCost = 0.055;
+            } else if (modelLower.includes('flux-dev')) {
+                baseCost = 0.025;
+            }
+            // DALL-E 系列
+            else if (modelLower.includes('dall-e-3')) {
+                if (size === '1024x1024') baseCost = 0.04;
+                else baseCost = 0.08;
+            } else if (modelLower.includes('gpt-image-1.5')) {
+                baseCost = 0.03;
+            }
+            // Midjourney
+            else if (modelLower.includes('midjourney')) {
+                baseCost = 0.05;
+            }
+            // Stable Diffusion
+            else if (modelLower.includes('stable') || modelLower.includes('sdxl')) {
+                baseCost = 0.015;
+            }
+            // 其他模型
+            else if (modelLower.includes('ideogram')) {
+                baseCost = 0.02;
+            } else if (modelLower.includes('kling')) {
+                baseCost = 0.03;
+            }
+
+            // 尺寸调整系数
+            let sizeMultiplier = 1.0;
+            if (size === '1024x1792' || size === '1792x1024') {
+                sizeMultiplier = 1.5;
+            }
+
+            return baseCost * sizeMultiplier;
+        }
+
+        // 当 API Key 或 API URL 改变时，自动获取模型列表和余额
+        function handleApiKeyChange() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const apiUrl = document.getElementById('apiUrl').value.trim();
+
+            if (apiKey && apiUrl) {
+                fetchAndUpdateModels();
+                fetchKeyInfo();
+            }
+        }
+
+        // 获取并更新模型列表
+        async function fetchAndUpdateModels() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const apiUrl = document.getElementById('apiUrl').value.trim();
+
+            if (!apiKey) {
+                showError('请先输入 API Key');
+                return;
+            }
+
+            const modelSelect = document.getElementById('modelSelect');
+            const loadingStatus = document.getElementById('modelLoadingStatus');
+
+            loadingStatus.style.display = 'block';
+            loadingStatus.textContent = '正在连接并获取模型列表...';
+
+            try {
+                const response = await fetch(`${apiUrl}/v1/models`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${apiKey}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`连接失败: HTTP ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.data && Array.isArray(data.data)) {
+                    availableModels = data.data;
+                    updateModelSelect(availableModels);
+                    loadingStatus.textContent = `成功加载 ${availableModels.length} 个模型`;
+                    setTimeout(() => {
+                        loadingStatus.style.display = 'none';
+                    }, 2000);
+                } else {
+                    throw new Error('模型列表格式错误');
+                }
+
+            } catch (error) {
+                console.error('获取模型列表失败:', error);
+                loadingStatus.textContent = `获取失败: ${error.message}`;
+                loadingStatus.style.color = '#c62828';
+                setTimeout(() => {
+                    loadingStatus.style.display = 'none';
+                    loadingStatus.style.color = '#667eea';
+                }, 3000);
+
+                // 加载失败时显示默认模型列表
+                loadDefaultModels();
+            }
+        }
+
+        // 更新模型选择下拉框
+        function updateModelSelect(models) {
+            const modelSelect = document.getElementById('modelSelect');
+            const currentValue = modelSelect.value;
+
+            // 清空现有选项
+            modelSelect.innerHTML = '';
+
+            // 按类别分组模型
+            const categorizedModels = categorizeModels(models);
+
+            // 添加分组选项
+            for (const [category, categoryModels] of Object.entries(categorizedModels)) {
+                if (categoryModels.length > 0) {
+                    const optgroup = document.createElement('optgroup');
+                    optgroup.label = category;
+
+                    categoryModels.forEach(model => {
+                        const option = document.createElement('option');
+                        option.value = model.id;
+                        option.textContent = model.id;
+
+                        // 标记推荐模型
+                        if (isRecommendedModel(model.id)) {
+                            option.textContent += ' (推荐)';
+                        }
+
+                        optgroup.appendChild(option);
+                    });
+
+                    modelSelect.appendChild(optgroup);
+                }
+            }
+
+            // 恢复之前选择的模型（如果还存在）
+            if (currentValue && models.some(m => m.id === currentValue)) {
+                modelSelect.value = currentValue;
+            } else {
+                // 默认选择第一个推荐模型
+                const recommended = models.find(m => isRecommendedModel(m.id));
+                if (recommended) {
+                    modelSelect.value = recommended.id;
+                }
+            }
+        }
+
+        // 模型分类
+        function categorizeModels(models) {
+            const categories = {
+                'Google 系列': [],
+                'Flux 系列': [],
+                'DALL-E 系列': [],
+                'Midjourney 系列': [],
+                'Stable Diffusion 系列': [],
+                '其他图片生成模型': [],
+                '文本模型': []
+            };
+
+            models.forEach(model => {
+                const modelId = model.id.toLowerCase();
+
+                // 只显示图片生成相关的模型
+                if (modelId.includes('nano') || modelId.includes('banana') || modelId.includes('imagen')) {
+                    categories['Google 系列'].push(model);
+                } else if (modelId.includes('flux')) {
+                    categories['Flux 系列'].push(model);
+                } else if (modelId.includes('dall-e') || modelId.includes('gpt-image')) {
+                    categories['DALL-E 系列'].push(model);
+                } else if (modelId.includes('midjourney') || modelId.includes('mj')) {
+                    categories['Midjourney 系列'].push(model);
+                } else if (modelId.includes('stable') || modelId.includes('sd-') || modelId.includes('sdxl')) {
+                    categories['Stable Diffusion 系列'].push(model);
+                } else if (
+                    modelId.includes('image') ||
+                    modelId.includes('ideogram') ||
+                    modelId.includes('kling') ||
+                    modelId.includes('sora') ||
+                    modelId.includes('pika') ||
+                    modelId.includes('runway')
+                ) {
+                    categories['其他图片生成模型'].push(model);
+                } else {
+                    // 跳过纯文本模型，或者放到文本模型分类
+                    // categories['文本模型'].push(model);
+                }
+            });
+
+            return categories;
+        }
+
+        // 判断是否为推荐模型
+        function isRecommendedModel(modelId) {
+            const recommended = [
+                'nano-banana',
+                'imagen-3.0-generate-001',
+                'flux-1.1-pro',
+                'dall-e-3',
+                'gpt-image-1.5'
+            ];
+            return recommended.some(rec => modelId.toLowerCase().includes(rec.toLowerCase()));
+        }
+
+        // 加载默认模型列表（当 API 获取失败时）
+        function loadDefaultModels() {
+            const defaultModels = [
+                { id: 'nano-banana', object: 'model' },
+                { id: 'imagen-3.0-generate-001', object: 'model' },
+                { id: 'flux-1.1-pro', object: 'model' },
+                { id: 'flux-pro', object: 'model' },
+                { id: 'flux-dev', object: 'model' },
+                { id: 'dall-e-3', object: 'model' },
+                { id: 'gpt-image-1.5', object: 'model' },
+                { id: 'midjourney', object: 'model' },
+                { id: 'ideogram', object: 'model' },
+                { id: 'kling-image', object: 'model' }
+            ];
+
+            availableModels = defaultModels;
+            updateModelSelect(defaultModels);
+        }
+
+        function toggleSettings() {
+            const panel = document.getElementById('settingsPanel');
+            panel.classList.toggle('active');
+        }
+
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                referenceImageBase64 = e.target.result;
+                document.getElementById('previewImg').src = e.target.result;
+                document.getElementById('referencePreview').classList.add('active');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removeReferenceImage() {
+            referenceImageBase64 = null;
+            document.getElementById('referencePreview').classList.remove('active');
+            document.getElementById('imageUpload').value = '';
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                generateImage();
+            }
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        function removeEmptyState() {
+            const gallery = document.getElementById('imageGallery');
+            const emptyState = gallery.querySelector('.empty-state');
+            if (emptyState) {
+                emptyState.remove();
+            }
+        }
+
+        function addLoadingState() {
+            removeEmptyState();
+            const gallery = document.getElementById('imageGallery');
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'loading-item';
+            loadingDiv.id = 'loadingState';
+            loadingDiv.innerHTML = `
+                <div class="spinner"></div>
+                <p>正在生成图片，请稍候...</p>
+            `;
+            gallery.insertBefore(loadingDiv, gallery.firstChild);
+            gallery.scrollTop = 0;
+        }
+
+        function removeLoadingState() {
+            const loading = document.getElementById('loadingState');
+            if (loading) loading.remove();
+        }
+
+        function addImageToGallery(imageUrl, prompt) {
+            removeLoadingState();
+            const gallery = document.getElementById('imageGallery');
+            const imageDiv = document.createElement('div');
+            imageDiv.className = 'image-item';
+            imageDiv.innerHTML = `
+                <img src="${imageUrl}" alt="生成的图片">
+                <div class="image-info">
+                    <strong>提示词:</strong> ${prompt}
+                </div>
+            `;
+            gallery.insertBefore(imageDiv, gallery.firstChild);
+        }
+
+        async function generateImage() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const apiUrl = document.getElementById('apiUrl').value.trim();
+            const model = document.getElementById('modelSelect').value;
+            const prompt = document.getElementById('promptInput').value.trim();
+            const size = document.getElementById('sizeSelect').value;
+
+            if (!apiKey) {
+                showError('请先在设置中配置 API Key');
+                return;
+            }
+
+            if (!prompt) {
+                showError('请输入提示词');
+                return;
+            }
+
+            const sendBtn = document.getElementById('sendBtn');
+            sendBtn.disabled = true;
+            addLoadingState();
+
+            try {
+                let response;
+
+                // 根据模型选择不同的 API 格式
+                if (model === 'nano-banana' || model.startsWith('imagen')) {
+                    // Google nano-banana 模型优先使用 chat 格式
+                    response = await generateWithNanoBanana(apiUrl, apiKey, model, prompt, size);
+                } else if (model.startsWith('flux')) {
+                    // Flux 模型使用 chat 格式
+                    response = await generateWithChatFormat(apiUrl, apiKey, model, prompt, size);
+                } else if (model === 'dall-e-3' || model === 'gpt-image-1.5') {
+                    // DALL-E 使用 image/generations 格式
+                    response = await generateWithImageFormat(apiUrl, apiKey, model, prompt, size);
+                } else if (model === 'midjourney') {
+                    // Midjourney 使用专用接口
+                    response = await generateWithMidjourney(apiUrl, apiKey, prompt);
+                } else if (model === 'kling-image') {
+                    // 可灵图片生成
+                    response = await generateWithKling(apiUrl, apiKey, prompt);
+                } else {
+                    // 默认使用 chat 格式
+                    response = await generateWithChatFormat(apiUrl, apiKey, model, prompt, size);
+                }
+
+                if (response.imageUrl) {
+                    addImageToGallery(response.imageUrl, prompt);
+                    document.getElementById('promptInput').value = '';
+                    removeReferenceImage();
+
+                    // 生成成功后刷新余额
+                    setTimeout(() => {
+                        fetchKeyInfo();
+                    }, 1000);
+                } else {
+                    throw new Error('未能获取生成的图片');
+                }
+
+            } catch (error) {
+                console.error('生成失败:', error);
+                showError(`生成失败: ${error.message}`);
+                removeLoadingState();
+            } finally {
+                sendBtn.disabled = false;
+            }
+        }
+
+        async function generateWithNanoBanana(apiUrl, apiKey, model, prompt, size) {
+            const messages = [
+                {
+                    role: "user",
+                    content: []
+                }
+            ];
+
+            // 如果有参考图片，添加到消息中
+            if (referenceImageBase64) {
+                messages[0].content.push({
+                    type: "image_url",
+                    image_url: {
+                        url: referenceImageBase64
+                    }
+                });
+            }
+
+            messages[0].content.push({
+                type: "text",
+                text: prompt
+            });
+
+            const response = await fetch(`${apiUrl}/v1/chat/completions`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: JSON.stringify({
+                    model: model,
+                    messages: messages,
+                    size: size
+                })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error?.message || `HTTP ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            // nano-banana 响应处理
+            let imageUrl = null;
+
+            // 方法1: 从 choices[0].message.content 提取图片 URL
+            if (data.choices && data.choices[0]?.message?.content) {
+                const content = data.choices[0].message.content;
+                // 尝试从内容中提取图片 URL（支持 markdown 格式）
+                const markdownMatch = content.match(/!\[.*?\]\((https?:\/\/[^\s)]+)\)/);
+                if (markdownMatch) {
+                    imageUrl = markdownMatch[1];
+                } else {
+                    // 尝试提取普通 URL
+                    const urlMatch = content.match(/https?:\/\/[^\s]+\.(jpg|jpeg|png|gif|webp)/i);
+                    if (urlMatch) {
+                        imageUrl = urlMatch[0];
+                    } else {
+                        // 可能整个 content 就是 URL
+                        if (content.startsWith('http')) {
+                            imageUrl = content.trim();
+                        }
+                    }
+                }
+            }
+
+            // 方法2: 从 data 数组提取（兼容 image/generations 格式）
+            if (!imageUrl && data.data && data.data[0]?.url) {
+                imageUrl = data.data[0].url;
+            }
+
+            return { imageUrl };
+        }
+
+        async function generateWithChatFormat(apiUrl, apiKey, model, prompt, size) {
+            const messages = [
+                {
+                    role: "user",
+                    content: []
+                }
+            ];
+
+            // 如果有参考图片，添加到消息中
+            if (referenceImageBase64) {
+                messages[0].content.push({
+                    type: "image_url",
+                    image_url: {
+                        url: referenceImageBase64
+                    }
+                });
+            }
+
+            messages[0].content.push({
+                type: "text",
+                text: prompt
+            });
+
+            const response = await fetch(`${apiUrl}/v1/chat/completions`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: JSON.stringify({
+                    model: model,
+                    messages: messages,
+                    size: size
+                })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error?.message || `HTTP ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            // 处理不同格式的响应
+            let imageUrl = null;
+
+            if (data.choices && data.choices[0]?.message?.content) {
+                const content = data.choices[0].message.content;
+                // 尝试从内容中提取图片 URL
+                const urlMatch = content.match(/https?:\/\/[^\s]+\.(jpg|jpeg|png|gif|webp)/i);
+                if (urlMatch) {
+                    imageUrl = urlMatch[0];
+                }
+            }
+
+            if (data.data && data.data[0]?.url) {
+                imageUrl = data.data[0].url;
+            }
+
+            return { imageUrl };
+        }
+
+        async function generateWithImageFormat(apiUrl, apiKey, model, prompt, size) {
+            const requestBody = {
+                model: model,
+                prompt: prompt,
+                n: 1,
+                size: size
+            };
+
+            // 如果有参考图片，使用 edit 端点
+            const endpoint = referenceImageBase64
+                ? `${apiUrl}/v1/images/edits`
+                : `${apiUrl}/v1/images/generations`;
+
+            let response;
+
+            if (referenceImageBase64) {
+                // 使用 multipart/form-data 上传图片
+                const formData = new FormData();
+
+                // 将 base64 转换为 Blob
+                const base64Response = await fetch(referenceImageBase64);
+                const blob = await base64Response.blob();
+
+                formData.append('image', blob, 'reference.png');
+                formData.append('prompt', prompt);
+                formData.append('model', model);
+                formData.append('n', '1');
+                formData.append('size', size);
+
+                response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: formData
+                });
+            } else {
+                response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+            }
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error?.message || `HTTP ${response.status}`);
+            }
+
+            const data = await response.json();
+            const imageUrl = data.data[0]?.url || data.data[0]?.b64_json;
+
+            return { imageUrl };
+        }
+
+        async function generateWithMidjourney(apiUrl, apiKey, prompt) {
+            // Midjourney 需要先提交任务
+            const submitResponse = await fetch(`${apiUrl}/mj/submit/imagine`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: JSON.stringify({
+                    prompt: prompt,
+                    base64Array: referenceImageBase64 ? [referenceImageBase64] : []
+                })
+            });
+
+            if (!submitResponse.ok) {
+                const errorData = await submitResponse.json();
+                throw new Error(errorData.error?.message || `HTTP ${submitResponse.status}`);
+            }
+
+            const submitData = await submitResponse.json();
+            const taskId = submitData.result;
+
+            // 轮询查询任务结果
+            let attempts = 0;
+            const maxAttempts = 60; // 最多等待 5 分钟
+
+            while (attempts < maxAttempts) {
+                await new Promise(resolve => setTimeout(resolve, 5000)); // 等待 5 秒
+
+                const queryResponse = await fetch(`${apiUrl}/mj/task/${taskId}/fetch`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${apiKey}`
+                    }
+                });
+
+                const queryData = await queryResponse.json();
+
+                if (queryData.status === 'SUCCESS') {
+                    return { imageUrl: queryData.imageUrl };
+                } else if (queryData.status === 'FAILURE') {
+                    throw new Error('Midjourney 生成失败');
+                }
+
+                attempts++;
+            }
+
+            throw new Error('任务超时，请稍后重试');
+        }
+
+        async function generateWithKling(apiUrl, apiKey, prompt) {
+            // 可灵图片生成
+            const response = await fetch(`${apiUrl}/kling/v1/images/generations`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: JSON.stringify({
+                    prompt: prompt,
+                    image: referenceImageBase64 || undefined,
+                    model: "kling-image"
+                })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error?.message || `HTTP ${response.status}`);
+            }
+
+            const data = await response.json();
+            const taskId = data.task_id;
+
+            // 轮询查询结果
+            let attempts = 0;
+            const maxAttempts = 40;
+
+            while (attempts < maxAttempts) {
+                await new Promise(resolve => setTimeout(resolve, 3000));
+
+                const queryResponse = await fetch(`${apiUrl}/kling/v1/images/generations/${taskId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${apiKey}`
+                    }
+                });
+
+                const queryData = await queryResponse.json();
+
+                if (queryData.task_status === 'succeed') {
+                    return { imageUrl: queryData.task_result?.images[0]?.url };
+                } else if (queryData.task_status === 'failed') {
+                    throw new Error('可灵生成失败');
+                }
+
+                attempts++;
+            }
+
+            throw new Error('任务超时');
+        }
+    </script>
+</body>
+</html>
