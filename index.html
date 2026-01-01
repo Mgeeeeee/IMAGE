@@ -190,6 +190,35 @@
             color: var(--text-color);
         }
 
+        .modal-action-btn {
+            width: 100%;
+            height: 54px;
+            background: #000;
+            color: #fff;
+            border: none;
+            border-radius: 16px;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 4px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 10px;
+            text-transform: uppercase;
+        }
+
+        .modal-action-btn:hover {
+            background: #334155;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-action-btn:active {
+            transform: translateY(0);
+        }
+
         .toolbar-btn:hover {
             background: #f8fafc;
             transform: translateY(-4px);
@@ -553,8 +582,9 @@
                 <label>风格提示词 (Style Prompt)</label>
                 <textarea id="promptInput" placeholder="描述你希望保持的长期风格或背景，例如：'极简主义，3D 渲染，电影级光效'..."></textarea>
             </div>
-            <button class="toolbar-btn primary" style="width:100%; height: 50px;"
-                onclick="closeModal('promptModal')">同步风格</button>
+            <button class="modal-action-btn" onclick="closeModal('promptModal')">
+                同步风格配置
+            </button>
         </div>
     </div>
 
