@@ -220,7 +220,7 @@
             position: fixed;
             bottom: 30px;
             left: 50%;
-            transform: translate3d(-50%, 16px, 0);
+            transform: translate3d(-50%, 0, 0);
             border-radius: 32px;
             cursor: default;
             padding: 24px;
@@ -235,15 +235,14 @@
             opacity: 0;
             visibility: hidden;
             pointer-events: none;
-            transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease;
-            will-change: transform, opacity;
+            transition: opacity 0.25s ease, visibility 0.25s ease;
+            will-change: opacity;
         }
 
         .action-panel.open {
             opacity: 1;
             visibility: visible;
             pointer-events: auto;
-            transform: translate3d(-50%, 0, 0);
         }
 
         /* 显示区域 (Display Area) */
