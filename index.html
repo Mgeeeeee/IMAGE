@@ -936,30 +936,39 @@
             const current = select.value;
             select.innerHTML = '';
 
-            const categories = {
-                'Google 系列': ['nano', 'banana', 'imagen'],
-                'Flux 系列': ['flux'],
-                'DALL-E 系列': ['dall-e', 'gpt-image'],
-                '其他推荐': ['image', 'ideogram', 'kling', 'sora', 'pika']
-            };
+            // 筛选 google 系列（关键词：gemini, banana）
+            const filtered = models.filter(m =>
+                m.id.toLowerCase().includes('gemini') ||
+                m.id.toLowerCase().includes('banana')
+            );
 
-            for (const [name, keywords] of Object.entries(categories)) {
-                const group = document.createElement('optgroup');
-                group.label = name;
-                models.filter(m => keywords.some(k => m.id.toLowerCase().includes(k)))
-                    .forEach(m => {
-                        const opt = document.createElement('option');
-                        opt.value = m.id;
-                        opt.textContent = m.id;
-                        group.appendChild(opt);
-                    });
-                if (group.children.length > 0) select.appendChild(group);
+            if (filtered.length === 0) {
+                const opt = document.createElement('option');
+                opt.textContent = "未找到匹配模型";
+                opt.disabled = true;
+                select.appendChild(opt);
+                return;
             }
-            if (current) select.value = current;
+
+            filtered.forEach(m => {
+                const opt = document.createElement('option');
+                opt.value = m.id;
+                opt.textContent = m.id;
+                select.appendChild(opt);
+            });
+
+            // 尽量保持当前选择
+            if (current && filtered.some(m => m.id === current)) {
+                select.value = current;
+            }
         }
 
         function loadDefaultModels() {
-            const defaults = [{ id: 'nano-banana' }, { id: 'flux-1.1-pro' }, { id: 'dall-e-3' }];
+            const defaults = [
+                { id: 'gemini-2.0-flash' },
+                { id: 'gemini-2.0-pro-exp' },
+                { id: 'nano-banana' }
+            ];
             updateModelSelect(defaults);
         }
 
