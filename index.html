@@ -8,12 +8,13 @@
     <style>
         :root {
             --primary-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --text-color: #f8fafc;
-            --text-muted: #94a3b8;
-            --accent-color: #8b5cf6;
-            --toolbar-bg: rgba(30, 41, 59, 0.8);
+            --bg-color: #f1f5f9;
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --text-color: #1e293b;
+            --text-muted: #64748b;
+            --accent-color: #6366f1;
+            --toolbar-bg: rgba(255, 255, 255, 0.8);
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
         }
 
         * {
@@ -30,6 +31,18 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
+            position: relative;
+        }
+
+        /* 动态背景 Canvas */
+        #bgCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
         }
 
         /* 中央预览区 */
@@ -38,21 +51,25 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            padding: 40px;
             position: relative;
+            z-index: 1;
         }
 
         .preview-container {
             width: 100%;
             height: 100%;
+            max-width: 1200px;
             display: flex;
             justify-content: center;
             align-items: center;
-            background: #111;
-            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(8px);
+            border-radius: 24px;
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            box-shadow: var(--shadow);
             position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.5);
         }
 
         .preview-container img {
@@ -60,6 +77,7 @@
             max-height: 100%;
             object-fit: contain;
             display: none;
+            transition: opacity 0.3s ease;
         }
 
         .preview-container img.active {
@@ -75,59 +93,68 @@
             width: 80px;
             height: 80px;
             margin-bottom: 20px;
-            opacity: 0.2;
+            opacity: 0.3;
         }
 
         /* 底部工具栏 */
         .bottom-toolbar {
-            height: 80px;
+            height: 90px;
             background: var(--toolbar-bg);
-            backdrop-filter: blur(12px);
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(16px);
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 20px;
+            gap: 24px;
             padding: 0 20px;
             z-index: 100;
+            box-shadow: 0 -10px 20px rgba(0, 0, 0, 0.05);
         }
 
         .toolbar-btn {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 12px;
+            background: white;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            color: var(--text-color);
+            padding: 12px 24px;
+            border-radius: 16px;
             cursor: pointer;
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 4px;
-            font-size: 12px;
-            transition: all 0.3s;
-            min-width: 80px;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            min-width: 100px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
         .toolbar-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
-            transform: translateY(-2px);
+            background: #f8fafc;
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
         }
 
         .toolbar-btn svg {
-            width: 20px;
-            height: 20px;
+            width: 22px;
+            height: 22px;
+            color: var(--accent-color);
         }
 
         .toolbar-btn.primary {
             background: var(--primary-gradient);
             border: none;
-            font-weight: 600;
+            color: white;
+        }
+
+        .toolbar-btn.primary svg {
+            color: white;
         }
 
         .toolbar-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
-            transform: none;
+            transform: none !important;
         }
 
         /* 弹窗系统 */
@@ -138,11 +165,12 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(4px);
+            background: rgba(15, 23, 42, 0.3);
+            backdrop-filter: blur(8px);
             z-index: 1000;
             justify-content: center;
             align-items: center;
+            transition: all 0.3s ease;
         }
 
         .modal.active {
@@ -150,32 +178,59 @@
         }
 
         .modal-content {
-            background: var(--card-bg);
+            background: white;
             width: 90%;
             max-width: 500px;
-            padding: 30px;
-            border-radius: 20px;
+            padding: 32px;
+            border-radius: 24px;
             position: relative;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            animation: modalPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes modalPop {
+            0% {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
         }
 
         .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
 
         .modal-header h2 {
-            font-size: 20px;
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-color);
         }
 
         .close-btn {
-            background: none;
+            background: #f1f5f9;
             border: none;
             color: var(--text-muted);
             cursor: pointer;
-            font-size: 24px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: all 0.2s;
+        }
+
+        .close-btn:hover {
+            background: #e2e8f0;
+            color: var(--text-color);
         }
 
         /* 表单样式 */
@@ -187,6 +242,7 @@
             display: block;
             margin-bottom: 8px;
             font-size: 14px;
+            font-weight: 600;
             color: var(--text-muted);
         }
 
@@ -194,24 +250,27 @@
         .form-group select,
         .form-group textarea {
             width: 100%;
-            background: rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 12px;
-            border-radius: 10px;
-            color: white;
-            font-size: 14px;
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            padding: 14px;
+            border-radius: 12px;
+            color: var(--text-color);
+            font-size: 15px;
             outline: none;
+            transition: all 0.2s;
         }
 
         .form-group input:focus,
         .form-group select:focus,
         .form-group textarea:focus {
             border-color: var(--accent-color);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
         }
 
         .form-group textarea {
-            min-height: 120px;
-            resize: vertical;
+            min-height: 140px;
+            resize: none;
         }
 
         /* 状态显示 */
@@ -222,7 +281,8 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(4px);
             flex-direction: column;
             justify-content: center;
             align-items: center;
@@ -234,13 +294,13 @@
         }
 
         .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid rgba(255, 255, 255, 0.1);
+            width: 48px;
+            height: 48px;
+            border: 4px solid #e2e8f0;
             border-top: 4px solid var(--accent-color);
             border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 10px;
+            animation: spin 1s cubic-bezier(0.5, 0.1, 0.4, 0.9) infinite;
+            margin-bottom: 16px;
         }
 
         @keyframes spin {
@@ -255,46 +315,53 @@
 
         .error-message {
             position: fixed;
-            top: 20px;
+            top: 24px;
             left: 50%;
             transform: translateX(-50%);
             background: #ef4444;
             color: white;
-            padding: 12px 24px;
-            border-radius: 10px;
+            padding: 14px 28px;
+            border-radius: 14px;
             z-index: 2000;
             display: none;
+            box-shadow: 0 10px 15px -3px rgba(239, 68, 68, 0.3);
+            font-weight: 500;
         }
 
         /* 余额展示 */
         .balance-chip {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 12px;
+            background: #eef2ff;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
             color: var(--accent-color);
+            border: 1px solid rgba(99, 102, 241, 0.2);
         }
     </style>
 </head>
 
 <body>
+    <canvas id="bgCanvas"></canvas>
+
     <div id="errorMessage" class="error-message"></div>
 
     <div class="preview-area">
         <div class="preview-container" id="previewContainer">
             <div class="empty-state" id="emptyState">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                     <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
                     <circle cx="8.5" cy="8.5" r="1.5" />
                     <polyline points="21 15 16 10 5 21" />
                 </svg>
-                <p>上传参考图或输入提示词开始生成</p>
+                <p>极简创作，由你定义</p>
+                <p style="font-size: 13px; margin-top: 8px;">上传参考图或输入提示词开始</p>
             </div>
             <img id="mainPreview" src="" alt="预览图">
 
             <div class="loading-overlay" id="loadingOverlay">
                 <div class="spinner"></div>
-                <p>正在全力生成中...</p>
+                <p style="font-weight: 600;">AI 画笔正在挥洒...</p>
             </div>
         </div>
     </div>
@@ -306,14 +373,14 @@
                 <path
                     d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
             </svg>
-            <span>设置</span>
+            <span>项目设置</span>
         </button>
         <button class="toolbar-btn" onclick="openModal('promptModal')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
             </svg>
-            <span>提示词</span>
+            <span>输入描述</span>
         </button>
         <button class="toolbar-btn" onclick="document.getElementById('imageUpload').click()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -321,14 +388,14 @@
                 <polyline points="17 8 12 3 7 8" />
                 <line x1="12" y1="3" x2="12" y2="15" />
             </svg>
-            <span>上传图片</span>
+            <span>参考图片</span>
         </button>
         <button class="toolbar-btn primary" onclick="generateImage()" id="sendBtn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="22" y1="2" x2="11" y2="13" />
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                 <polyline points="22 2 15 22 11 13 2 9 22 2" />
+                <line x1="22" y1="2" x2="11" y2="13" />
             </svg>
-            <span>开始生成</span>
+            <span>开始创作</span>
         </button>
     </div>
 
@@ -336,7 +403,7 @@
     <div class="modal" id="settingsModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>项目设置</h2>
+                <h2>个性化配置</h2>
                 <button class="close-btn" onclick="closeModal('settingsModal')">&times;</button>
             </div>
             <div class="form-group" style="display: none;">
@@ -345,22 +412,23 @@
             </div>
             <div class="form-group">
                 <label>API Key <span id="balanceDisplay" class="balance-chip" style="display:none">余额: --</span></label>
-                <input type="password" id="apiKey" placeholder="输入 API Key" onchange="handleConfigChange()">
+                <input type="password" id="apiKey" placeholder="输入从 tu-zi.com 获取的 Key" onchange="handleConfigChange()">
             </div>
             <div class="form-group">
-                <label>模型选择 <button onclick="fetchAndUpdateModels()"
-                        style="background:none;border:none;color:var(--accent-color);cursor:pointer;font-size:12px;padding:0">刷新列表</button></label>
+                <label>选择模型 <button onclick="fetchAndUpdateModels()"
+                        style="background:none;border:none;color:var(--accent-color);cursor:pointer;font-size:12px;font-weight:600;padding-left:10px">🔄
+                        刷新</button></label>
                 <select id="modelSelect" onchange="handleConfigChange()">
                     <option value="">请先输入 API Key</option>
                 </select>
             </div>
             <div class="form-group">
-                <label>图片尺寸</label>
+                <label>输出比例</label>
                 <select id="sizeSelect" onchange="handleConfigChange()">
-                    <option value="">不指定（原图比例）</option>
-                    <option value="1024x1024">1024x1024 (正方形)</option>
-                    <option value="1024x1792">1024x1792 (竖版)</option>
-                    <option value="1792x1024">1792x1024 (横版)</option>
+                    <option value="">跟随原图 (不指定)</option>
+                    <option value="1024x1024">1:1 正方形</option>
+                    <option value="1024x1792">9:16 竖版</option>
+                    <option value="1792x1024">16:9 横版</option>
                 </select>
             </div>
         </div>
@@ -370,13 +438,14 @@
     <div class="modal" id="promptModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>输入提示词</h2>
+                <h2>你想创作什么？</h2>
                 <button class="close-btn" onclick="closeModal('promptModal')">&times;</button>
             </div>
             <div class="form-group">
-                <textarea id="promptInput" placeholder="描述你想要生成的图片..."></textarea>
+                <textarea id="promptInput" placeholder="描述你脑海中的画面，支持中英文描述..."></textarea>
             </div>
-            <button class="toolbar-btn primary" style="width:100%" onclick="closeModal('promptModal')">确定</button>
+            <button class="toolbar-btn primary" style="width:100%; height: 50px;"
+                onclick="closeModal('promptModal')">保存描述</button>
         </div>
     </div>
 
@@ -388,8 +457,98 @@
         let accountBalance = null;
         let balanceFetched = false;
 
-        // 初始化
+        // --- 动态背景逻辑 ---
+        const canvas = document.getElementById('bgCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let shapes = [];
+
+        function initBackground() {
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+            createParticles();
+            createShapes();
+            animateBackground();
+        }
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        function createParticles() {
+            particles = [];
+            const count = Math.floor((canvas.width * canvas.height) / 25000);
+            for (let i = 0; i < count; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    vx: (Math.random() - 0.5) * 0.5,
+                    vy: (Math.random() - 0.5) * 0.5,
+                    size: Math.random() * 2 + 1
+                });
+            }
+        }
+
+        function createShapes() {
+            shapes = [];
+            for (let i = 0; i < 5; i++) {
+                shapes.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    size: Math.random() * 100 + 50,
+                    angle: Math.random() * Math.PI * 2,
+                    speed: Math.random() * 0.01
+                });
+            }
+        }
+
+        function animateBackground() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // 绘制面 (半透明几何形)
+            ctx.fillStyle = 'rgba(99, 102, 241, 0.03)';
+            shapes.forEach(shape => {
+                shape.angle += shape.speed;
+                ctx.beginPath();
+                ctx.arc(shape.x, shape.y, shape.size, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            // 绘制连线和点
+            ctx.strokeStyle = 'rgba(99, 102, 241, 0.08)';
+            ctx.fillStyle = 'rgba(99, 102, 241, 0.15)';
+
+            particles.forEach((p, i) => {
+                p.x += p.vx;
+                p.y += p.vy;
+
+                if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+                if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+
+                for (let j = i + 1; j < particles.length; j++) {
+                    const p2 = particles[j];
+                    const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
+                    if (dist < 150) {
+                        ctx.lineWidth = (1 - dist / 150) * 1;
+                        ctx.beginPath();
+                        ctx.moveTo(p.x, p.y);
+                        ctx.lineTo(p2.x, p2.y);
+                        ctx.stroke();
+                    }
+                }
+            });
+
+            requestAnimationFrame(animateBackground);
+        }
+
+        // --- 应用逻辑 ---
         window.addEventListener('DOMContentLoaded', () => {
+            initBackground();
             const savedApiKey = localStorage.getItem('apiKey');
             const savedApiUrl = localStorage.getItem('apiUrl');
             const savedModel = localStorage.getItem('model');
@@ -420,7 +579,6 @@
             }
         }
 
-        // 弹窗控制
         function openModal(id) {
             document.getElementById(id).classList.add('active');
         }
@@ -429,14 +587,12 @@
             document.getElementById(id).classList.remove('active');
         }
 
-        // 点击外部关闭弹窗
         window.onclick = function (event) {
             if (event.target.classList.contains('modal')) {
                 event.target.classList.remove('active');
             }
         }
 
-        // 图片处理
         function handleImageUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -458,7 +614,6 @@
             empty.style.display = 'none';
         }
 
-        // API 相关
         async function fetchKeyInfo() {
             const apiKey = document.getElementById('apiKey').value.trim();
             const apiUrl = document.getElementById('apiUrl').value.trim();
@@ -476,7 +631,6 @@
                     if (data.hard_limit_usd !== undefined) accountBalance = data.hard_limit_usd;
                     else if (data.quota !== undefined) accountBalance = data.quota / 500000;
                     else accountBalance = 0;
-
                     updateBalanceDisplay();
                 }
             } catch (error) { console.error('获取余额失败:', error); }
@@ -519,7 +673,7 @@
                 'Google 系列': ['nano', 'banana', 'imagen'],
                 'Flux 系列': ['flux'],
                 'DALL-E 系列': ['dall-e', 'gpt-image'],
-                '其他图片生成': ['image', 'ideogram', 'kling', 'sora', 'pika']
+                '其他推荐': ['image', 'ideogram', 'kling', 'sora', 'pika']
             };
 
             for (const [name, keywords] of Object.entries(categories)) {
@@ -572,7 +726,6 @@
                 requestBody.messages[0].content.push({ type: 'text', text: prompt });
                 if (size) requestBody.size = size;
 
-                // 简化处理，统一使用 chat 格式
                 const res = await fetch(`${apiUrl}/v1/chat/completions`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
