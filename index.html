@@ -20,6 +20,7 @@
             --toolbar-bg: rgba(255, 255, 255, 0.8);
             --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
             --panel-duration: 520ms;
+            --panel-bottom-offset: 30px;
         }
 
         * {
@@ -90,10 +91,10 @@
             object-fit: contain;
             display: none;
             border-radius: 20px;
-            border: 1px dashed rgba(0, 0, 0, 0.25);
+            border: 2px dashed #000;
             box-shadow: none;
             box-sizing: border-box;
-            transition: opacity 0.3s ease;
+            transition: opacity 0.9s ease;
             opacity: 0;
             position: relative;
             z-index: 4;
@@ -140,9 +141,9 @@
         }
 
         .loading-caption {
-            position: absolute;
+            position: fixed;
             left: 50%;
-            top: calc(50% + var(--preload-frame-h, 240px) / 2 + 18px);
+            bottom: calc(var(--panel-bottom-offset, 30px) + 24px + 15px + 24px);
             transform: translateX(-50%) scale(0.98);
             font-size: 12px;
             font-weight: 600;
@@ -195,7 +196,7 @@
             font-weight: 900;
             letter-spacing: 16px;
             color: var(--text-color);
-            opacity: 0.1;
+            opacity: 0.22;
             margin-bottom: 12px;
             user-select: none;
             line-height: 1;
@@ -207,7 +208,7 @@
             font-weight: 700;
             letter-spacing: 6px;
             color: var(--text-color);
-            opacity: 0.1;
+            opacity: 0.24;
             text-transform: uppercase;
             transition: all 0.5s ease;
         }
@@ -403,6 +404,15 @@
             pointer-events: none;
         }
 
+        .action-panel.no-scroll .display-area {
+            overflow: hidden;
+            scrollbar-width: none;
+        }
+
+        .action-panel.no-scroll .display-area::-webkit-scrollbar {
+            display: none;
+        }
+
         .action-panel.open .display-area {
             opacity: 1;
             visibility: visible;
@@ -520,12 +530,20 @@
 
         /* 移动端适配 */
         @media (max-width: 640px) {
+            :root {
+                --panel-bottom-offset: 20px;
+            }
+
             .action-panel {
                 height: 50vh;
                 bottom: 20px;
             }
 
             @supports (padding-bottom: env(safe-area-inset-bottom)) {
+                :root {
+                    --panel-bottom-offset: env(safe-area-inset-bottom);
+                }
+
                 .action-cluster {
                     bottom: calc(30px + env(safe-area-inset-bottom));
                 }
@@ -556,13 +574,13 @@
 
         /* 余额展示 */
         .balance-chip {
-            background: #eef2ff;
+            background: transparent;
             padding: 4px 10px;
-            border-radius: 8px;
-            font-size: 13px;
+            border-radius: 10px;
+            font-size: 12px;
             font-weight: 600;
-            color: var(--accent-color);
-            border: 1px solid rgba(99, 102, 241, 0.2);
+            color: var(--text-color);
+            border: 1px solid rgba(0, 0, 0, 0.1);
         }
 
         /* 标题栏 */
@@ -633,16 +651,65 @@
             min-height: 80px;
         }
 
+
         /* 模型按钮组 */
         .model-btn-group {
             display: flex;
             gap: 8px;
+            flex-wrap: wrap;
             margin-bottom: 8px;
+        }
+
+        .label-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .label-row label {
+            margin-bottom: 0;
+        }
+
+        .icon-btn {
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.8);
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-color);
+            transition: all 0.2s;
+        }
+
+        .icon-btn:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .icon-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .model-select-inline {
+            width: 100%;
+            height: 44px;
+            padding: 0 34px 0 12px;
+            margin-top: 8px;
+        }
+
+        .model-select-inline.hidden {
+            display: none;
         }
 
         .model-quick-btn {
             flex: 1;
-            padding: 10px 12px;
+            padding: 0 12px;
+            height: 44px;
             border: 1px solid rgba(0, 0, 0, 0.1);
             border-radius: 10px;
             background: rgba(255, 255, 255, 0.8);
@@ -651,6 +718,9 @@
             cursor: pointer;
             transition: all 0.2s;
             color: var(--text-color);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .model-quick-btn:hover {
@@ -661,6 +731,12 @@
             background: #000;
             color: #fff;
             border-color: #000;
+        }
+
+        .model-quick-select {
+            height: 44px;
+            padding: 0 34px 0 12px;
+            line-height: 44px;
         }
 
         /* 操作按钮 */
@@ -754,7 +830,7 @@
             <!-- 设置 Tab -->
             <div id="tab-settings" class="tab-content">
                 <div class="modal-header">
-                    <h2>个性化配置</h2>
+                    <h2>系统设置</h2>
                     <button class="close-btn" onclick="collapseActionCenter(event)">&times;</button>
                 </div>
                 <div class="form-group" style="display: none;">
@@ -762,42 +838,52 @@
                     <input type="text" id="apiUrl" value="https://api.tu-zi.com">
                 </div>
                 <div class="form-group">
-                    <label>API Key <span id="balanceDisplay" class="balance-chip" style="display:none">余额:
-                            --</span></label>
+                    <div class="label-row">
+                        <label>API Key</label>
+                        <span id="balanceDisplay" class="balance-chip" style="display:none">余额: --</span>
+                    </div>
                     <input type="password" id="apiKey" placeholder="输入从 tu-zi.com 获取的 Key"
                         onchange="handleConfigChange()">
                 </div>
                 <div class="form-group">
-                    <label>选择模型</label>
+                    <label>模型比例</label>
                     <div class="model-btn-group">
                         <button class="model-quick-btn" id="btn-banana"
                             onclick="selectQuickModel('nano-banana-vip', 'btn-banana')">🍌</button>
                         <button class="model-quick-btn" id="btn-banana-pro"
                             onclick="selectQuickModel('nano-banana-2-vip', 'btn-banana-pro')">🍌 PRO</button>
-                        <button class="model-quick-btn" id="btn-others" onclick="showOtherModels()">OTHERS</button>
-                    </div>
-                    <div id="otherModelsContainer" style="display: none; margin-top: 10px;">
-                        <select id="modelSelect" onchange="handleConfigChange()">
-                            <option value="">点击下方刷新获取列表</option>
+                        <select id="sizeSelect" class="model-quick-btn model-quick-select"
+                            onchange="handleConfigChange()">
+                            <option value="">不设置</option>
+                            <option value="1:1">1:1</option>
+                            <option value="2:3">2:3</option>
+                            <option value="3:2">3:2</option>
+                            <option value="3:4">3:4</option>
+                            <option value="4:3">4:3</option>
+                            <option value="4:5">4:5</option>
+                            <option value="5:4">5:4</option>
+                            <option value="9:16">9:16</option>
+                            <option value="16:9">16:9</option>
+                            <option value="21:9">21:9</option>
                         </select>
-                        <button onclick="fetchAndUpdateModels()" class="modal-action-btn"
-                            style="height: 40px; margin-top: 8px; font-size: 12px;">🔄 刷新模型列表</button>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>输出比例</label>
-                    <select id="sizeSelect" onchange="handleConfigChange()">
-                        <option value="">跟随原图 (不指定)</option>
-                        <option value="1:1">1:1 (1024x1024)</option>
-                        <option value="2:3">2:3 (832x1248)</option>
-                        <option value="3:2">3:2 (1248x832)</option>
-                        <option value="3:4">3:4 (864x1184)</option>
-                        <option value="4:3">4:3 (1184x864)</option>
-                        <option value="4:5">4:5 (896x1152)</option>
-                        <option value="5:4">5:4 (1152x896)</option>
-                        <option value="9:16">9:16 (768x1344)</option>
-                        <option value="16:9">16:9 (1344x768)</option>
-                        <option value="21:9">21:9 (1536x672)</option>
+                    <div class="label-row">
+                        <label>其他模型</label>
+                        <button class="icon-btn" id="refreshModelsBtn" onclick="fetchAndUpdateModels()"
+                            title="刷新模型列表" aria-label="刷新模型列表">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 12a9 9 0 0 1-15.3 6.3" />
+                                <path d="M3 12a9 9 0 0 1 15.3-6.3" />
+                                <path d="M21 3v6h-6" />
+                                <path d="M3 21v-6h6" />
+                            </svg>
+                        </button>
+                    </div>
+                    <select id="modelSelect" class="model-select-inline" onchange="handleConfigChange()">
+                        <option value="">点击右上刷新获取列表</option>
                     </select>
                 </div>
             </div>
@@ -805,23 +891,18 @@
             <!-- 风格 Tab -->
             <div id="tab-style" class="tab-content">
                 <div class="modal-header">
-                    <h2>配置固定风格</h2>
+                    <h2>风格预设</h2>
                     <button class="close-btn" onclick="collapseActionCenter(event)">&times;</button>
                 </div>
                 <div class="form-group">
-                    <label>预设风格库</label>
                     <div class="preset-container" id="presetContainer"></div>
-                </div>
-                <div class="form-group">
-                    <label>风格描述 (Style Prompt)</label>
-                    <textarea id="promptInput" placeholder="极简风格，电影光效..."></textarea>
                 </div>
             </div>
 
             <!-- 上传 Tab -->
             <div id="tab-upload" class="tab-content">
                 <div class="modal-header">
-                    <h2>参考图像</h2>
+                    <h2>使用图片</h2>
                     <button class="close-btn" onclick="collapseActionCenter(event)">&times;</button>
                 </div>
                 <div id="uploadPreview"
@@ -835,12 +916,11 @@
             <!-- 对话/生成 Tab -->
             <div id="tab-chat" class="tab-content active">
                 <div class="modal-header">
-                    <h2>灵感对话</h2>
+                    <h2>自由对话</h2>
                     <button class="close-btn" onclick="collapseActionCenter(event)">&times;</button>
                 </div>
                 <div class="form-group">
-                    <label>即时灵感 (Prompt)</label>
-                    <textarea id="tempPromptInput" placeholder="输入你想生成的画面描述..." style="min-height: 200px;"></textarea>
+                    <textarea id="tempPromptInput" placeholder="输入你想生成的画面描述..." style="height: 220px; resize: none; overflow-y: auto;"></textarea>
                 </div>
             </div>
         </div>
@@ -958,15 +1038,9 @@
         }
 
         function selectPreset(name, chipElement) {
-            const input = document.getElementById('promptInput');
-            input.value = presetData[name];
-
             // 切换选中状态
             document.querySelectorAll('.preset-chip').forEach(c => c.classList.remove('active'));
             chipElement.classList.add('active');
-
-            // 自动调整高度
-            autoResizeTextarea(input);
         }
 
         function autoResizeTextarea(element) {
@@ -976,33 +1050,18 @@
 
         function selectQuickModel(modelId, btnId) {
             const select = document.getElementById('modelSelect');
-            const container = document.getElementById('otherModelsContainer');
 
             // 设置模型值
-            select.value = modelId;
+            if (select) select.value = modelId;
             // 如果下拉列表里没有这个值（还没加载），直接存入 localStorage 也会生效
             localStorage.setItem('model', modelId);
 
             // 按钮高亮逻辑
             document.querySelectorAll('.model-quick-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById(btnId).classList.add('active');
-
-            // 隐藏下拉列表
-            container.style.display = 'none';
             handleConfigChange();
         }
 
-        function showOtherModels() {
-            const container = document.getElementById('otherModelsContainer');
-            document.querySelectorAll('.model-quick-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById('btn-others').classList.add('active');
-            container.style.display = 'block';
-
-            // 触发刷新列表逻辑（如果还没加载过）
-            if (document.getElementById('modelSelect').options.length <= 1) {
-                fetchAndUpdateModels();
-            }
-        }
         let accountBalance = null;
         let rawQuota = null;
         let balanceFetched = false;
@@ -1079,9 +1138,6 @@
             initBackground();
             initPresets();
             initLoadingVisuals();
-
-            const promptInput = document.getElementById('promptInput');
-            promptInput.addEventListener('input', () => autoResizeTextarea(promptInput));
 
             const savedApiKey = localStorage.getItem('apiKey');
             const savedApiUrl = localStorage.getItem('apiUrl');
@@ -1257,6 +1313,14 @@
 
         function switchTab(tabId, event) {
             if (event) event.stopPropagation();
+            const panel = document.getElementById('actionPanel');
+            if (panel) {
+                if (tabId === 'tab-settings' || tabId === 'tab-style' || tabId === 'tab-chat') {
+                    panel.classList.add('no-scroll');
+                } else {
+                    panel.classList.remove('no-scroll');
+                }
+            }
 
             // 切换内容
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
@@ -1514,7 +1578,6 @@
                 width: frameRect.width,
                 height: frameRect.height
             };
-            container.style.setProperty('--preload-frame-h', `${frameRect.height}px`);
         }
 
         function getSizeRatio(sizeValue) {
@@ -1745,10 +1808,10 @@
         function updateBalanceDisplay() {
             const chip = document.getElementById('balanceDisplay');
             if (balanceFetched) {
-                chip.style.display = 'inline';
                 const formattedUSD = (accountBalance || 0).toFixed(2);
                 chip.textContent = `余额: $${formattedUSD}`;
             }
+            chip.style.display = 'none';
         }
 
         async function fetchAndUpdateModels() {
@@ -1823,7 +1886,8 @@
             const apiKey = document.getElementById('apiKey').value.trim();
             const apiUrl = document.getElementById('apiUrl').value.trim();
             const model = document.getElementById('modelSelect').value;
-            const stylePrompt = document.getElementById('promptInput').value.trim();
+            const activePreset = document.querySelector('.preset-chip.active');
+            const stylePrompt = activePreset ? presetData[activePreset.textContent] || '' : '';
             const tempPrompt = document.getElementById('tempPromptInput').value.trim();
             const size = document.getElementById('sizeSelect').value;
             const fullPrompt = [tempPrompt, stylePrompt].filter(p => p).join(', ');
