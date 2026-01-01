@@ -1082,76 +1082,79 @@
             loading.classList.add('active');
 
             try {
-                const isGoogleModel = model.toLowerCase().includes('gemini') || model.toLowerCase().includes('banana');
-                let res;
+                // 统一使用 Google 原生协议 (JSON 结构匹配截图示例)
+                const nativeBody = {
+                    contents: [{
+                        parts: []
+                    }],
+                    generationConfig: {
+                        responseModalities: ["IMAGE", "TEXT"]
+                    }
+                };
 
-                if (isGoogleModel) {
-                    // --- 方案 A: Google 原生协议接口 ---
-                    const nativeBody = {
-                        contents: [{
-                            parts: []
-                        }],
-                        generationConfig: {
-                            responseModalities: ["IMAGE", "TEXT"]
+                // 处理参考图
+                if (referenceImageBase64) {
+                    const base64Data = referenceImageBase64.split(',')[1] || referenceImageBase64;
+                    nativeBody.contents[0].parts.push({
+                        inline_data: {
+                            mime_type: "image/jpeg",
+                            data: base64Data
                         }
-                    };
-
-                    // 处理参考图
-                    if (referenceImageBase64) {
-                        const base64Data = referenceImageBase64.split(',')[1] || referenceImageBase64;
-                        nativeBody.contents[0].parts.push({
-                            inline_data: {
-                                mime_type: "image/jpeg",
-                                data: base64Data
-                            }
-                        });
-                    }
-
-                    // 添加文本提示词
-                    nativeBody.contents[0].parts.push({ text: fullPrompt });
-
-                    // 设置比例
-                    if (size) {
-                        nativeBody.generationConfig.imageConfig = { aspectRatio: size };
-                    }
-
-                    // 注意：根据截图，Google 模型的 Endpoint 是特定的
-                    const endpoint = `${apiUrl}/v1beta/models/${model}:generateContent`;
-
-                    res = await fetch(endpoint, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
-                        body: JSON.stringify(nativeBody)
                     });
+                }
 
+                // 添加文本提示词
+                nativeBody.contents[0].parts.push({ text: fullPrompt });
 
+                // 设置比例 (仅当 size 包含冒号时作为 aspectRatio 传递)
+                if (size && size.includes(':')) {
+                    nativeBody.generationConfig.imageConfig = { aspectRatio: size };
+                }
 
-                    if (!res.ok) {
-                        const errData = await res.json();
-                        throw new Error(errData.error?.message || '请求失败，请检查模型名称或 API 权限');
-                    }
+                // 准备请求：强制使用 generateContent endpoint
+                const endpoint = `${apiUrl}/v1beta/models/${model}:generateContent`;
 
-                    const data = await res.json();
-                    let url = null;
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify(nativeBody)
+                });
 
-                    // 仅解析 Google 原生响应
-                    if (data.candidates && data.candidates[0]?.content?.parts) {
-                        for (const part of data.candidates[0].content.parts) {
-                            if (part.text) {
-                                const match = part.text.match(/https?:\/\/[^\s"]+\.(jpg|jpeg|png|gif|webp)/i);
-                                if (match) url = match[0];
-                            }
+                if (!res.ok) {
+                    const errData = await res.json();
+                    throw new Error(errData.error?.message || '请求失败，请检查 API 权限');
+                }
+
+                const data = await res.json();
+                let url = null;
+
+                // 解析 Google 原生响应结果
+                if (data.candidates && data.candidates[0]?.content?.parts) {
+                    for (const part of data.candidates[0].content.parts) {
+                        if (part.text) {
+                            const match = part.text.match(/https?:\/\/[^\s"]+\.(jpg|jpeg|png|gif|webp)/i);
+                            if (match) url = match[0];
                         }
                     }
-
-                    if (url) {
-                        displayPreview(url);
-                        fetchKeyInfo();
-                    } else throw new Error('未能从响应中提取到图片地址');
-
-                catch (e) { showError(e.message); }
-                    finally { btn.disabled = false; loading.classList.remove('active'); }
                 }
+
+                if (url) {
+                    displayPreview(url);
+                    fetchKeyInfo();
+                } else {
+                    throw new Error('未能从响应中提取到图片地址');
+                }
+
+            } catch (e) {
+                showError(e.message);
+            } finally {
+                btn.disabled = false;
+                loading.classList.remove('active');
+            }
+        }
     </script>
 </body>
 
