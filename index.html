@@ -106,11 +106,13 @@
             font-size: 80px;
             font-weight: 900;
             letter-spacing: 16px;
-            color: var(--text-color);
-            opacity: 0.06;
-            margin-bottom: 10px;
+            color: transparent;
+            -webkit-text-stroke: 1.5px var(--text-color);
+            opacity: 0.1;
+            margin-bottom: 12px;
             user-select: none;
             line-height: 1;
+            transition: all 0.5s ease;
         }
 
         .empty-subtitle {
@@ -120,6 +122,7 @@
             color: var(--text-muted);
             opacity: 0.4;
             text-transform: uppercase;
+            transition: all 0.5s ease;
         }
 
         /* 底部工具栏 */
@@ -504,28 +507,44 @@
             }
         }
 
-        /* 状态显示 - 复用背景元素实现呼吸效果 */
-        .empty-state.loading .empty-logo,
+        /* 状态显示 - 镂空涟漪呼吸效果 */
+        .empty-state.loading .empty-logo {
+            -webkit-text-stroke: 2px #000;
+            animation: rippleBreath 2s ease-in-out infinite;
+        }
+
         .empty-state.loading .empty-subtitle {
-            animation: breath 2s ease-in-out infinite;
+            animation: solidBreath 2s ease-in-out infinite;
             color: #000;
         }
 
-        .empty-state.loading .empty-subtitle {
-            animation-delay: 0.5s;
-        }
-
-        @keyframes breath {
+        @keyframes rippleBreath {
 
             0%,
             100% {
-                opacity: 0.06;
+                opacity: 0.1;
                 transform: scale(0.98);
+                filter: blur(0px);
             }
 
             50% {
                 opacity: 0.6;
-                transform: scale(1);
+                transform: scale(1.02);
+                filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.2));
+            }
+        }
+
+        @keyframes solidBreath {
+
+            0%,
+            100% {
+                opacity: 0.1;
+                transform: translateY(0);
+            }
+
+            50% {
+                opacity: 0.8;
+                transform: translateY(-2px);
             }
         }
 
