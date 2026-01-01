@@ -92,10 +92,49 @@
             border-radius: 20px;
             box-shadow: var(--shadow);
             transition: opacity 0.3s ease;
+            opacity: 0;
+            position: relative;
+            z-index: 4;
         }
 
         .preview-container img.active {
             display: block;
+        }
+
+        .preview-container img.revealed {
+            opacity: 1;
+        }
+
+        .preload-frame {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 20px;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .preload-frame.visible {
+            opacity: 1;
+        }
+
+        .loading-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+            pointer-events: none;
+            z-index: 3;
+        }
+
+        .loading-canvas.active {
+            opacity: 1;
         }
 
         .empty-state {
@@ -458,31 +497,7 @@
         }
 
 
-        /* 状态显示 - 实心统一呼吸效果 */
-        .empty-state.loading .empty-logo,
-        .empty-state.loading .empty-subtitle {
-            animation: solidBreath 2s ease-in-out infinite;
-            color: #000;
-        }
-
-        .empty-state.loading .empty-logo {
-            opacity: 0.6;
-            -webkit-text-stroke: 0;
-        }
-
-        @keyframes solidBreath {
-
-            0%,
-            100% {
-                opacity: 0.1;
-                transform: scale(0.98);
-            }
-
-            50% {
-                opacity: 0.6;
-                transform: scale(1);
-            }
-        }
+        /* 状态显示 */
 
         .error-message {
             position: fixed;
@@ -664,10 +679,9 @@
 
     <div class="preview-area">
         <div class="preview-container" id="previewContainer">
-            <div class="empty-state" id="emptyState">
-                <div class="empty-logo">IMAGE</div>
-                <div class="empty-subtitle">美好值得等待</div>
-            </div>
+            <div class="empty-state" id="emptyState"></div>
+            <div class="preload-frame" id="preloadFrame"></div>
+            <canvas class="loading-canvas" id="loadingCanvas"></canvas>
             <img id="mainPreview" src="" alt="预览图">
         </div>
     </div>
@@ -828,6 +842,15 @@
         let referenceImageBase64 = null;
         let lastGenerationConfig = null;
         let lastGeneratedImageUrl = '';
+        let loadingCanvas = null;
+        let loadingCtx = null;
+        let loadingParticles = [];
+        let loadingActive = false;
+        let loadingFadeOutStart = null;
+        let loadingStartTime = 0;
+        let loadingFrameRect = null;
+        let loadingSizeValue = '';
+        let loadingLastTime = 0;
 
         const presetData = {
             '浮墨': `# 浮墨
@@ -1011,6 +1034,7 @@
         window.addEventListener('DOMContentLoaded', () => {
             initBackground();
             initPresets();
+            initLoadingVisuals();
 
             const promptInput = document.getElementById('promptInput');
             promptInput.addEventListener('input', () => autoResizeTextarea(promptInput));
@@ -1074,10 +1098,10 @@
             if (previewImg.style.display !== 'none' && previewImg.src) {
                 previewImg.style.display = 'none';
                 previewImg.src = '';
-                emptyState.style.display = 'flex';
-                emptyState.classList.remove('loading');
+                emptyState.style.display = 'none';
                 lastGeneratedImageUrl = '';
                 hideActionTools();
+                stopLoadingParticles(true);
             }
 
             const first = button.getBoundingClientRect();
@@ -1250,12 +1274,28 @@
         function displayPreview(url) {
             const img = document.getElementById('mainPreview');
             const empty = document.getElementById('emptyState');
-            img.src = url;
+            img.classList.remove('revealed');
             img.style.display = 'block';
             img.classList.add('active');
             empty.style.display = 'none';
-            lastGeneratedImageUrl = url;
-            showActionTools();
+
+            const loader = new Image();
+            loader.onload = () => {
+                img.src = url;
+                requestAnimationFrame(() => img.classList.add('revealed'));
+                lastGeneratedImageUrl = url;
+                stopLoadingParticles();
+                const actionButton = document.getElementById('actionButton');
+                if (actionButton) actionButton.classList.remove('hidden');
+                showActionTools();
+            };
+            loader.onerror = () => {
+                stopLoadingParticles(true);
+                const actionButton = document.getElementById('actionButton');
+                if (actionButton) actionButton.classList.remove('hidden');
+                showError('图片加载失败');
+            };
+            loader.src = url;
         }
 
         function showActionTools() {
@@ -1281,30 +1321,44 @@
             const url = lastGeneratedImageUrl;
             const filename = `image-${Date.now()}.png`;
 
-            try {
-                if (url.startsWith('data:')) {
-                    const link = document.createElement('a');
-                    link.href = url;
-                    link.download = filename;
-                    document.body.appendChild(link);
-                    link.click();
-                    link.remove();
-                    return;
-                }
-
-                const response = await fetch(url, { mode: 'cors' });
-                if (!response.ok) throw new Error('下载失败');
-                const blob = await response.blob();
-                const objectUrl = URL.createObjectURL(blob);
+            const fallbackDownload = (rawUrl) => {
                 const link = document.createElement('a');
-                link.href = objectUrl;
+                link.href = rawUrl;
                 link.download = filename;
                 document.body.appendChild(link);
                 link.click();
                 link.remove();
+            };
+
+            try {
+                const response = await fetch(url, { mode: 'cors' });
+                if (!response.ok) throw new Error('下载失败');
+                const blob = await response.blob();
+
+                if (window.showSaveFilePicker && window.isSecureContext) {
+                    try {
+                        const handle = await window.showSaveFilePicker({
+                            suggestedName: filename,
+                            types: [{ description: 'Image', accept: { 'image/*': ['.png', '.jpg', '.jpeg', '.webp'] } }]
+                        });
+                        const writable = await handle.createWritable();
+                        await writable.write(blob);
+                        await writable.close();
+                        return;
+                    } catch (err) {
+                        if (err && err.name === 'AbortError') return;
+                    }
+                }
+
+                const objectUrl = URL.createObjectURL(blob);
+                fallbackDownload(objectUrl);
                 URL.revokeObjectURL(objectUrl);
             } catch (err) {
-                window.open(url, '_blank');
+                try {
+                    fallbackDownload(url);
+                } catch {
+                    window.open(url, '_blank');
+                }
             }
         }
 
@@ -1318,6 +1372,250 @@
                 collapseActionCenter();
             }
             generateImage(lastGenerationConfig);
+        }
+
+        function initLoadingVisuals() {
+            loadingCanvas = document.getElementById('loadingCanvas');
+            if (!loadingCanvas) return;
+            loadingCtx = loadingCanvas.getContext('2d');
+            window.addEventListener('resize', () => {
+                if (!loadingActive) return;
+                updatePreloadFrame(loadingSizeValue);
+                sizeLoadingCanvas();
+            });
+        }
+
+        function sizeLoadingCanvas() {
+            if (!loadingCanvas || !loadingCtx) return;
+            const container = document.getElementById('previewContainer');
+            const rect = container.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+            loadingCanvas.width = rect.width * dpr;
+            loadingCanvas.height = rect.height * dpr;
+            loadingCanvas.style.width = `${rect.width}px`;
+            loadingCanvas.style.height = `${rect.height}px`;
+            loadingCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+
+        function updatePreloadFrame(sizeValue) {
+            const frame = document.getElementById('preloadFrame');
+            const container = document.getElementById('previewContainer');
+            if (!frame || !container) return;
+
+            const rect = container.getBoundingClientRect();
+            const ratio = getSizeRatio(sizeValue || '1:1');
+            const maxW = rect.width * 0.88;
+            const maxH = rect.height * 0.88;
+            let width = maxW;
+            let height = width / ratio;
+            if (height > maxH) {
+                height = maxH;
+                width = height * ratio;
+            }
+
+            frame.style.width = `${Math.max(160, width)}px`;
+            frame.style.height = `${Math.max(160, height)}px`;
+
+            const frameRect = frame.getBoundingClientRect();
+            loadingFrameRect = {
+                x: frameRect.left - rect.left,
+                y: frameRect.top - rect.top,
+                width: frameRect.width,
+                height: frameRect.height
+            };
+        }
+
+        function getSizeRatio(sizeValue) {
+            if (!sizeValue || !sizeValue.includes(':')) return 1;
+            const parts = sizeValue.split(':').map(Number);
+            if (parts.length !== 2 || !parts[0] || !parts[1]) return 1;
+            return parts[0] / parts[1];
+        }
+
+        function startLoadingParticles(sizeValue) {
+            const frame = document.getElementById('preloadFrame');
+            const canvas = document.getElementById('loadingCanvas');
+            loadingSizeValue = sizeValue || '1:1';
+            updatePreloadFrame(loadingSizeValue);
+            sizeLoadingCanvas();
+
+            if (frame) frame.classList.add('visible');
+            if (canvas) canvas.classList.add('active');
+
+            loadingActive = true;
+            loadingFadeOutStart = null;
+            loadingStartTime = performance.now();
+            loadingLastTime = 0;
+            createLoadingParticles();
+            requestAnimationFrame(animateLoadingParticles);
+        }
+
+        function stopLoadingParticles(immediate = false) {
+            if (!loadingActive) {
+                resetLoadingVisuals();
+                return;
+            }
+            if (immediate) {
+                resetLoadingVisuals();
+                return;
+            }
+            loadingFadeOutStart = performance.now();
+        }
+
+        function resetLoadingVisuals() {
+            const frame = document.getElementById('preloadFrame');
+            const canvas = document.getElementById('loadingCanvas');
+            if (frame) frame.classList.remove('visible');
+            if (canvas) {
+                canvas.classList.remove('active');
+                if (loadingCtx) {
+                    loadingCtx.clearRect(0, 0, canvas.width, canvas.height);
+                }
+            }
+            loadingActive = false;
+            loadingFadeOutStart = null;
+            loadingParticles = [];
+            loadingLastTime = 0;
+        }
+
+        function createLoadingParticles() {
+            if (!loadingFrameRect || !loadingCanvas) return;
+            const count = Math.max(28, Math.floor((loadingFrameRect.width * loadingFrameRect.height) / 12000));
+            const edgeRatio = 0.4;
+            loadingParticles = Array.from({ length: count }, () => {
+                const isEdge = Math.random() < edgeRatio;
+                const edge = Math.floor(Math.random() * 4);
+                let x = loadingFrameRect.x + Math.random() * loadingFrameRect.width;
+                let y = loadingFrameRect.y + Math.random() * loadingFrameRect.height;
+                let vx = (Math.random() - 0.5) * 0.6;
+                let vy = (Math.random() - 0.5) * 0.6;
+
+                if (isEdge) {
+                    const edgeSpeed = (Math.random() * 0.6 + 0.3) * (Math.random() < 0.5 ? -1 : 1);
+                    if (edge === 0 || edge === 2) {
+                        y = edge === 0 ? loadingFrameRect.y : loadingFrameRect.y + loadingFrameRect.height;
+                        vx = edgeSpeed;
+                        vy = 0;
+                    } else {
+                        x = edge === 3 ? loadingFrameRect.x : loadingFrameRect.x + loadingFrameRect.width;
+                        vy = edgeSpeed;
+                        vx = 0;
+                    }
+                }
+                return {
+                    x,
+                    y,
+                    vx,
+                    vy,
+                    mode: isEdge ? 'edge' : 'field',
+                    edge,
+                    alpha: 0,
+                    delay: Math.random() * 300
+                };
+            });
+        }
+
+        function animateLoadingParticles(now) {
+            if (!loadingActive || !loadingCtx || !loadingCanvas) return;
+            const rect = loadingCanvas.getBoundingClientRect();
+            loadingCtx.clearRect(0, 0, rect.width, rect.height);
+
+            const elapsed = now - loadingStartTime;
+            const delta = loadingLastTime ? Math.min(2, (now - loadingLastTime) / 16.6) : 1;
+            loadingLastTime = now;
+            let fade = 1;
+            if (loadingFadeOutStart) {
+                fade = 1 - (now - loadingFadeOutStart) / 500;
+                if (fade <= 0) {
+                    resetLoadingVisuals();
+                    return;
+                }
+            }
+
+            const rendered = [];
+            const bounds = loadingFrameRect;
+            loadingParticles.forEach((p) => {
+                if (elapsed < p.delay) {
+                    return;
+                }
+                p.alpha = Math.min(1, (elapsed - p.delay) / 400);
+                if (bounds) {
+                    if (p.mode === 'edge') {
+                        if (p.edge === 0 || p.edge === 2) {
+                            p.x += p.vx * delta;
+                            const minX = bounds.x;
+                            const maxX = bounds.x + bounds.width;
+                            if (p.x < minX) {
+                                p.x = minX;
+                                p.vx *= -1;
+                            } else if (p.x > maxX) {
+                                p.x = maxX;
+                                p.vx *= -1;
+                            }
+                            p.y = p.edge === 0 ? bounds.y : bounds.y + bounds.height;
+                        } else {
+                            p.y += p.vy * delta;
+                            const minY = bounds.y;
+                            const maxY = bounds.y + bounds.height;
+                            if (p.y < minY) {
+                                p.y = minY;
+                                p.vy *= -1;
+                            } else if (p.y > maxY) {
+                                p.y = maxY;
+                                p.vy *= -1;
+                            }
+                            p.x = p.edge === 3 ? bounds.x : bounds.x + bounds.width;
+                        }
+                    } else {
+                        p.x += p.vx * delta;
+                        p.y += p.vy * delta;
+
+                        if (p.x < bounds.x) {
+                            p.x = bounds.x;
+                            p.vx *= -1;
+                        } else if (p.x > bounds.x + bounds.width) {
+                            p.x = bounds.x + bounds.width;
+                            p.vx *= -1;
+                        }
+                        if (p.y < bounds.y) {
+                            p.y = bounds.y;
+                            p.vy *= -1;
+                        } else if (p.y > bounds.y + bounds.height) {
+                            p.y = bounds.y + bounds.height;
+                            p.vy *= -1;
+                        }
+                    }
+                }
+
+                const alpha = 0.45 * p.alpha * fade;
+                rendered.push({ x: p.x, y: p.y, alpha });
+            });
+
+            const maxDist = 120;
+            for (let i = 0; i < rendered.length; i++) {
+                for (let j = i + 1; j < rendered.length; j++) {
+                    const a = rendered[i];
+                    const b = rendered[j];
+                    const dist = Math.hypot(a.x - b.x, a.y - b.y);
+                    if (dist > maxDist) continue;
+                    const strength = (1 - dist / maxDist) * Math.min(a.alpha, b.alpha) * 0.4;
+                    loadingCtx.strokeStyle = `rgba(0, 0, 0, ${strength})`;
+                    loadingCtx.lineWidth = 1;
+                    loadingCtx.beginPath();
+                    loadingCtx.moveTo(a.x, a.y);
+                    loadingCtx.lineTo(b.x, b.y);
+                    loadingCtx.stroke();
+                }
+            }
+
+            rendered.forEach((p) => {
+                loadingCtx.fillStyle = `rgba(0, 0, 0, ${p.alpha})`;
+                loadingCtx.beginPath();
+                loadingCtx.arc(p.x, p.y, 1.6, 0, Math.PI * 2);
+                loadingCtx.fill();
+            });
+
+            requestAnimationFrame(animateLoadingParticles);
         }
 
         async function fetchKeyInfo() {
@@ -1472,18 +1770,15 @@
             };
 
             const btn = document.getElementById('sendBtn');
-            const emptyState = document.getElementById('emptyState');
-            const emptySubtitle = emptyState.querySelector('.empty-subtitle');
             const preview = document.getElementById('mainPreview');
             const actionButton = document.getElementById('actionButton');
 
             btn.disabled = true;
-            actionButton.classList.add('generating');
+            actionButton.classList.remove('revealing');
+            actionButton.classList.add('hidden');
             hideActionTools();
-            emptyState.classList.add('loading');
-            emptyState.style.display = 'flex';
-            emptySubtitle.textContent = '美好值得等待';
             preview.style.display = 'none';
+            startLoadingParticles(size);
 
             try {
                 // 智能路由逻辑：优先原生协议以获得更好的连通性和功能支持
@@ -1582,10 +1877,10 @@
 
             } catch (e) {
                 showError(e.message);
+                stopLoadingParticles(true);
+                actionButton.classList.remove('hidden');
             } finally {
                 btn.disabled = false;
-                emptyState.classList.remove('loading');
-                emptySubtitle.textContent = '美好值得等待';
                 actionButton.classList.remove('generating');
             }
         }
