@@ -54,6 +54,8 @@ image/
 ├── assets/             # 样式与脚本
 │   ├── styles.css
 │   ├── app.js
+│   ├── favicon.svg
+│   ├── apple-touch-icon.png
 │   └── FOLDER.md
 ├── scripts/            # 本地校验脚本
 │   ├── check_headers.sh

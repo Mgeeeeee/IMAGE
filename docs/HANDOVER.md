@@ -27,6 +27,8 @@ image/
 ├── assets/             # 样式与脚本
 │   ├── styles.css
 │   ├── app.js
+│   ├── favicon.svg
+│   ├── apple-touch-icon.png
 │   └── FOLDER.md
 ├── scripts/            # 本地校验脚本
 │   ├── check_headers.sh
@@ -67,7 +69,7 @@ image/
 - **使用图片**：上传参考图（仅更新上传预览，不影响主预览）
 - **自由对话**：固定高度文本框，内部可滚动
 
-面板滚动策略：`switchTab()` 为 **设置 / 预设 / 对话** 添加 `.no-scroll`，避免面板整体滚动。
+面板滚动策略：面板允许滚动，滚动条隐藏，标题栏使用 `position: sticky` 固定在顶部。
 
 ### 4.3 预览区与加载动画
 

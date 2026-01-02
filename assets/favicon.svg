@@ -1,0 +1,11 @@
+<!--
+INPUT: 品牌识别与书签展示
+OUTPUT: SVG 图标
+POS: 站点 favicon
+UPDATE: 一旦我被更新，务必更新我的开头注释，以及所属的文件夹的md。
+UPDATED: 2026-01-02
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <path fill="#000" d="M32 4L39 24L60 32L39 40L32 60L25 40L4 32L25 24Z"/>
+  <path fill="#000" d="M49 8L52 16L60 19L52 22L49 30L46 22L38 19L46 16Z"/>
+</svg>

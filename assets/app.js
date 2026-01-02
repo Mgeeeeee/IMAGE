@@ -355,15 +355,6 @@
 
         function switchTab(tabId, event) {
             if (event) event.stopPropagation();
-            const panel = document.getElementById('actionPanel');
-            if (panel) {
-                if (tabId === 'tab-settings' || tabId === 'tab-style' || tabId === 'tab-chat') {
-                    panel.classList.add('no-scroll');
-                } else {
-                    panel.classList.remove('no-scroll');
-                }
-            }
-
             // 切换内容
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');

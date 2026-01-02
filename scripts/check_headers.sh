@@ -14,7 +14,7 @@ fail=0
 
 while IFS= read -r file; do
     case "$file" in
-        *.md|*.html|*.css|*.js|*.txt|*.sh|.gitignore) ;;
+        *.md|*.html|*.css|*.js|*.txt|*.sh|*.svg|.gitignore) ;;
         *) continue ;;
     esac
 
