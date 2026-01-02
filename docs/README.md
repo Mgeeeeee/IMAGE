@@ -7,11 +7,11 @@ UPDATED: 2026-01-02
 -->
 # IMAGE
 
-一个纯前端、单文件的 AI 图片生成器。界面以底部入口按钮与可展开的操作面板为中心，支持文生图/图生图、预设风格、比例选择、结果下载与重新生成。
+一个纯前端、单页的 AI 图片生成器。界面以底部入口按钮与可展开的操作面板为中心，支持文生图/图生图、预设风格、比例选择、结果下载与重新生成。
 
 ## 功能概览
 
-- 单页应用，无构建工具，所有逻辑在 `index.html`
+- 单页应用，无构建工具，入口在 `index.html`，逻辑与样式在 `assets/`
 - 文生图 + 图生图（上传参考图）
 - 风格预设：点击预设直接应用，无文本输入框
 - 模型与比例：快捷模型 + 比例下拉 + 其他模型列表
@@ -50,7 +50,11 @@ python -m http.server 8080
 image/
 ├── .gitignore          # 忽略系统与编辑器噪音文件
 ├── README.md           # 根目录主文档与规则
-├── index.html          # 入口与全部逻辑
+├── index.html          # 入口结构
+├── assets/             # 样式与脚本
+│   ├── styles.css
+│   ├── app.js
+│   └── FOLDER.md
 ├── Prompts/            # 预设文本参考
 ├── docs/               # 项目文档
 │   ├── README.md
@@ -68,8 +72,8 @@ image/
 
 ## 维护提示
 
-- 预设风格文本在 `index.html` 的 `presetData` 中维护  
-- API 路由逻辑在 `generateImage()`，香蕉模型走 OpenAI 兼容接口，其它走 Google 原生接口  
+- 预设风格文本在 `assets/app.js` 的 `presetData` 中维护  
+- API 路由逻辑在 `assets/app.js` 的 `generateImage()`  
 - 本地缓存使用 `localStorage`：`apiKey`、`apiUrl`、`model`、`size`
 
 更详细的交接说明请见 `HANDOVER.md`。

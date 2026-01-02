@@ -9,7 +9,7 @@ UPDATED: 2026-01-02
 
 ## 1. 项目概览
 
-这是一个纯前端、单页面的 AI 图片生成器。核心体验由「底部入口按钮」与「展开式操作面板」组成，生成过程包含加载动画、等待文案与结果淡入显示。代码完全位于 `index.html`，无构建工具。
+这是一个纯前端、单页面的 AI 图片生成器。核心体验由「底部入口按钮」与「展开式操作面板」组成，生成过程包含加载动画、等待文案与结果淡入显示。入口在 `index.html`，样式与逻辑在 `assets/`，无构建工具。
 
 ## 2. 技术栈
 
@@ -23,7 +23,11 @@ UPDATED: 2026-01-02
 image/
 ├── .gitignore          # 忽略系统与编辑器噪音文件
 ├── README.md           # 根目录主文档与规则
-├── index.html          # 全部 UI + 逻辑
+├── index.html          # 入口结构
+├── assets/             # 样式与脚本
+│   ├── styles.css
+│   ├── app.js
+│   └── FOLDER.md
 ├── Prompts/            # 预设提示词参考
 ├── docs/               # 项目文档
 │   ├── README.md
@@ -70,6 +74,7 @@ image/
 - `#preloadFrame`：预先占位的“提前位”
 - `#loadingCanvas`：粒子 + 连线动画
 - `#loadingCaption`：等待文案（固定在 tab 栏上方位置）
+- 预载框比例：显式比例优先；未设置比例但有参考图时按参考图比例，否则默认 1:1
 
 加载相关函数：
 
@@ -79,7 +84,7 @@ image/
 
 ## 5. 生成流程与状态
 
-核心流程在 `generateImage()`：
+核心流程在 `assets/app.js` 的 `generateImage()`：
 
 1. 读取配置（API Key / 模型 / 比例 / Prompt / 参考图）
 2. 缓存 `lastGenerationConfig`（用于重新生成）
@@ -99,7 +104,7 @@ image/
 
 ## 6. API 路由与协议
 
-`generateImage()` 内有智能路由：
+`assets/app.js` 的 `generateImage()` 内有智能路由：
 
 - **OpenAI 兼容**：当模型名包含 `banana`
   - `POST /v1/images/generations`
@@ -123,7 +128,7 @@ image/
 
 ## 8. 常见改动点
 
-- **预设文案**：`presetData`（位于 `index.html`）
+- **预设文案**：`presetData`（位于 `assets/app.js`）
 - **比例选项**：`#sizeSelect`（模型比例区域）
 - **模型筛选逻辑**：`updateModelSelect()` 的过滤条件
 - **面板动画速度**：CSS 变量 `--panel-duration` 与 `PANEL_ANIM_MS`
@@ -136,4 +141,4 @@ image/
 - `Prompts/` 内的 Markdown 仅作为参考，真正生效的是 `presetData`
 - `showSaveFilePicker` 与 `navigator.share` 需要 `https/localhost`
 
-如需扩展组件或拆分文件，可先将 `index.html` 中的 `<style>` 和 `<script>` 拆出为独立文件，再逐步模块化。
+如需进一步扩展，可继续在 `assets/` 内拆分模块文件并保持无构建模式。
