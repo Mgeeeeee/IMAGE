@@ -25,7 +25,7 @@ image/
 │   ├── check_headers.sh
 │   └── FOLDER.md
 ├── daily/              # 日常记录
-│   ├── FREEWRITE.md
+│   ├── WORKLOG.md
 │   └── FOLDER.md
 ├── Prompts/            # 预设提示词参考
 ├── docs/               # 项目文档
@@ -33,7 +33,7 @@ image/
 │   ├── HANDOVER.md
 │   ├── REQUIREMENTS.md
 │   ├── REFLECTIONS.md
-│   ├── FREEWRITE.md
+│   ├── WORKLOG.md
 │   ├── llms.txt
 │   └── FOLDER.md
 └── meta/               # 规范与身份
@@ -68,7 +68,7 @@ image/
 
 ## 架构决策与变更记录
 - 架构决策：保持单页入口与无构建部署，降低发布成本。
-- 最近变更：新增 `daily/` 日常目录，工作文档继续集中到 `docs/`。
+- 最近变更：新增 `docs/WORKLOG.md` 记录工作日志。
 
 ## 配置与安全提示
 - API Key 存在 `localStorage`，不要在代码中硬编码或日志输出。

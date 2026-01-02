@@ -42,6 +42,7 @@ image/
 │   ├── HANDOVER.md
 │   ├── REQUIREMENTS.md
 │   ├── REFLECTIONS.md
+│   ├── WORKLOG.md
 │   ├── llms.txt
 │   └── FOLDER.md
 └── meta/               # 规范与身份
