@@ -19,6 +19,9 @@ image/
 │   ├── styles.css
 │   ├── app.js
 │   └── FOLDER.md
+├── scripts/            # 本地校验脚本
+│   ├── check_headers.sh
+│   └── FOLDER.md
 ├── Prompts/            # 预设提示词参考
 ├── docs/               # 项目文档
 │   ├── README.md
@@ -51,6 +54,7 @@ image/
 - 生成流程（加载动画 → 图片淡入）
 - 桌面端下载/移动端分享是否正常
 - 模型与比例选择是否正确持久化（localStorage）
+- 可选执行 `scripts/check_headers.sh` 验证文件头一致性
 
 ## 提交与 PR 规范
 - 提交信息倾向简短、动词开头（例如 “Improve loading caption…”）。
@@ -59,7 +63,7 @@ image/
 
 ## 架构决策与变更记录
 - 架构决策：保持单页入口与无构建部署，降低发布成本。
-- 最近变更：样式与脚本拆分到 `assets/`，文档集中到 `docs/`，新增目录索引 `FOLDER.md`。
+- 最近变更：样式与脚本拆分到 `assets/`，新增 `scripts/` 头部校验脚本，文档集中到 `docs/`。
 
 ## 配置与安全提示
 - API Key 存在 `localStorage`，不要在代码中硬编码或日志输出。

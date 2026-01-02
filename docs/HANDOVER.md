@@ -28,6 +28,9 @@ image/
 │   ├── styles.css
 │   ├── app.js
 │   └── FOLDER.md
+├── scripts/            # 本地校验脚本
+│   ├── check_headers.sh
+│   └── FOLDER.md
 ├── Prompts/            # 预设提示词参考
 ├── docs/               # 项目文档
 │   ├── README.md

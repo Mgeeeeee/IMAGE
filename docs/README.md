@@ -55,6 +55,9 @@ image/
 │   ├── styles.css
 │   ├── app.js
 │   └── FOLDER.md
+├── scripts/            # 本地校验脚本
+│   ├── check_headers.sh
+│   └── FOLDER.md
 ├── Prompts/            # 预设文本参考
 ├── docs/               # 项目文档
 │   ├── README.md
@@ -75,5 +78,6 @@ image/
 - 预设风格文本在 `assets/app.js` 的 `presetData` 中维护  
 - API 路由逻辑在 `assets/app.js` 的 `generateImage()`  
 - 本地缓存使用 `localStorage`：`apiKey`、`apiUrl`、`model`、`size`
+- 可选执行 `scripts/check_headers.sh` 验证文件头一致性
 
 更详细的交接说明请见 `HANDOVER.md`。

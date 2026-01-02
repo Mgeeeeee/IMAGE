@@ -2,6 +2,7 @@
 # OUTPUT: 供人工查阅的参考索引
 # POS: API 文档索引文件
 # UPDATE: 一旦我被更新，务必更新我的开头注释，以及所属的文件夹的md。
+# UPDATED: 2026-01-02
 # api.tu-zi.com
 
 ## Docs

@@ -3,6 +3,7 @@ INPUT: 项目约束与规范
 OUTPUT: 开发与协作要求
 POS: 规范基线
 UPDATE: 一旦我被更新，务必更新我的开头注释，以及所属的文件夹的md。
+UPDATED: 2026-01-02
 -->
 # 项目要求
 
@@ -14,6 +15,11 @@ UPDATE: 一旦我被更新，务必更新我的开头注释，以及所属的文
 
 ## 推送github要求
 - 推送之前需要征询同意
+
+## 文档一致性检查
+- 可选执行：`scripts/check_headers.sh`
+- 目标：确保文件头部 INPUT/OUTPUT/POS/UPDATE/UPDATED 标记齐全
+- 约束：新增/移动/删除文件后，先更新对应 `FOLDER.md` 再提交
 
 ## 技术栈要求
 
