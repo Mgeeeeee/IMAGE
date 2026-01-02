@@ -24,6 +24,9 @@ image/
 ├── scripts/            # 本地校验脚本
 │   ├── check_headers.sh
 │   └── FOLDER.md
+├── daily/              # 日常记录
+│   ├── FREEWRITE.md
+│   └── FOLDER.md
 ├── Prompts/            # 预设提示词参考
 ├── docs/               # 项目文档
 │   ├── README.md
@@ -65,7 +68,7 @@ image/
 
 ## 架构决策与变更记录
 - 架构决策：保持单页入口与无构建部署，降低发布成本。
-- 最近变更：样式与脚本拆分到 `assets/`，新增 `scripts/` 头部校验脚本，文档集中到 `docs/`。
+- 最近变更：新增 `daily/` 日常目录，工作文档继续集中到 `docs/`。
 
 ## 配置与安全提示
 - API Key 存在 `localStorage`，不要在代码中硬编码或日志输出。

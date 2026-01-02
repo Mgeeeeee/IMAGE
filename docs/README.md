@@ -60,13 +60,15 @@ image/
 ├── scripts/            # 本地校验脚本
 │   ├── check_headers.sh
 │   └── FOLDER.md
+├── daily/              # 日常记录
+│   ├── FREEWRITE.md
+│   └── FOLDER.md
 ├── Prompts/            # 预设文本参考
 ├── docs/               # 项目文档
 │   ├── README.md
 │   ├── HANDOVER.md
 │   ├── REQUIREMENTS.md
 │   ├── REFLECTIONS.md
-│   ├── FREEWRITE.md
 │   ├── llms.txt
 │   └── FOLDER.md
 └── meta/               # 规范与身份
