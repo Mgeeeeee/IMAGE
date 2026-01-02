@@ -1,0 +1,28 @@
+# INPUT: 本地开发产生的系统/编辑器文件
+# OUTPUT: Git 忽略规则
+# POS: 仓库根目录忽略清单
+# UPDATE: 一旦我被更新，务必更新我的开头注释，以及所属的文件夹的md。
+# UPDATED: 2026-01-02
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Linux
+.Trash-*
+
+# Editor/IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*.tmp
+*.bak
+*.orig
+*~

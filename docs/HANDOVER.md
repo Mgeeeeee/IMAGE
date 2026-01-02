@@ -1,3 +1,10 @@
+<!--
+INPUT: 当前架构与运行约定
+OUTPUT: 交接与维护说明
+POS: 维护者指南
+UPDATE: 一旦我被更新，务必更新我的开头注释，以及所属的文件夹的md。
+UPDATED: 2026-01-02
+-->
 # 项目交接说明
 
 ## 1. 项目概览
@@ -14,11 +21,22 @@
 
 ```
 image/
+├── .gitignore          # 忽略系统与编辑器噪音文件
+├── README.md           # 根目录主文档与规则
 ├── index.html          # 全部 UI + 逻辑
-├── README.md           # 使用说明
-├── HANDOVER.md         # 交接文档
-├── REQUIREMENTS.md     # 项目规范
-└── Prompts/            # 预设提示词参考
+├── Prompts/            # 预设提示词参考
+├── docs/               # 项目文档
+│   ├── README.md
+│   ├── HANDOVER.md
+│   ├── REQUIREMENTS.md
+│   ├── REFLECTIONS.md
+│   ├── FREEWRITE.md
+│   ├── llms.txt
+│   └── FOLDER.md
+└── meta/               # 规范与身份
+    ├── AGENTS.md
+    ├── CodexRole.md
+    └── FOLDER.md
 ```
 
 ## 4. 关键界面与交互
