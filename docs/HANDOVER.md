@@ -57,6 +57,7 @@ image/
 
 - **入口按钮**：`.action-button`，底部中央彩色渐变按钮
 - **面板**：`.action-panel`，展开后显示设置/预设/上传/对话
+- **关闭交互**：点击面板外区域
 - **动画**：`expandActionCenter()` 与 `collapseActionCenter()` 采用 FLIP 思路（先计算矩形、再缩放位移）
 - 相关状态类：
   - `.open` / `.animating` 控制面板交互与过渡

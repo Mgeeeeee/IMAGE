@@ -213,6 +213,8 @@
                 tempPromptInput.addEventListener('input', updateTempPromptClearState);
             }
             updateTempPromptClearState();
+
+            document.addEventListener('click', handleOutsidePanelClick);
         });
 
         function handleConfigChange() {
@@ -950,6 +952,15 @@
             input.value = '';
             input.focus();
             updateTempPromptClearState();
+        }
+
+        function handleOutsidePanelClick(event) {
+            const panel = document.getElementById('actionPanel');
+            if (!panel || !panel.classList.contains('open')) return;
+            if (panel.contains(event.target)) return;
+            const button = document.getElementById('actionButton');
+            if (button && button.contains(event.target)) return;
+            collapseActionCenter();
         }
 
         function getCurrentGenerationConfig() {
