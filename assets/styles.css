@@ -3,7 +3,7 @@ INPUT: 页面样式与视觉定义
 OUTPUT: 页面布局与交互样式
 POS: 全站样式入口
 UPDATE: 一旦我被更新，务必更新我的开头注释，以及所属的文件夹的md。
-UPDATED: 2026-01-02
+UPDATED: 2026-01-08
 */
         :root {
             --primary-gradient: linear-gradient(135deg, #000000 0%, #334155 100%);
@@ -647,6 +647,47 @@ UPDATED: 2026-01-02
         .form-group textarea {
             resize: vertical;
             min-height: 80px;
+        }
+
+        .textarea-wrap {
+            position: relative;
+        }
+
+        .prompt-textarea {
+            padding-right: 44px;
+            padding-bottom: 44px;
+        }
+
+        .textarea-clear-btn {
+            position: absolute;
+            right: 10px;
+            bottom: 10px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.9);
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-color);
+            transition: all 0.2s;
+        }
+
+        .textarea-clear-btn:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .textarea-clear-btn.is-hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.92);
+        }
+
+        .textarea-clear-btn svg {
+            width: 16px;
+            height: 16px;
         }
 
 

@@ -3,7 +3,7 @@ INPUT: 浏览器环境、用户输入、API 配置/响应、本地缓存
 OUTPUT: UI 渲染、图片生成请求、下载/分享
 POS: 单页应用唯一运行入口
 UPDATE: 一旦我被更新，务必更新我的开头注释，以及所属的文件夹的md。
-UPDATED: 2026-01-02
+UPDATED: 2026-01-08
 -->
 <!DOCTYPE html>
 <html lang="zh-CN">
@@ -76,7 +76,7 @@ UPDATED: 2026-01-02
                         <label>API Key</label>
                         <span id="balanceDisplay" class="balance-chip" style="display:none">余额: --</span>
                     </div>
-                    <input type="password" id="apiKey" placeholder="输入从 tu-zi.com 获取的 Key"
+                    <input type="password" id="apiKey"
                         onchange="handleConfigChange()">
                 </div>
                 <div class="form-group">
@@ -154,7 +154,16 @@ UPDATED: 2026-01-02
                     <button class="close-btn" onclick="collapseActionCenter(event)">&times;</button>
                 </div>
                 <div class="form-group">
-                    <textarea id="tempPromptInput" placeholder="输入你想生成的画面描述..." style="height: 220px; resize: none; overflow-y: auto;"></textarea>
+                    <div class="textarea-wrap">
+                        <textarea id="tempPromptInput" class="prompt-textarea" placeholder="输入你想生成的画面描述..." style="height: 220px; resize: none; overflow-y: auto;"></textarea>
+                        <button class="textarea-clear-btn is-hidden" type="button" onclick="clearTempPrompt()" title="清空">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="6" y1="6" x2="18" y2="18" />
+                                <line x1="6" y1="18" x2="18" y2="6" />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

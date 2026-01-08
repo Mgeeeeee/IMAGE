@@ -2,7 +2,7 @@
 // OUTPUT: UI 事件与生成流程
 // POS: 全局脚本入口
 // UPDATE: 一旦我被更新，务必更新我的开头注释，以及所属的文件夹的md。
-// UPDATED: 2026-01-02
+// UPDATED: 2026-01-08
         let availableModels = [];
         let referenceImageBase64 = null;
         let lastGenerationConfig = null;
@@ -207,6 +207,12 @@
             if (!savedModel) {
                 selectQuickModel('nano-banana-vip', 'btn-banana');
             }
+
+            const tempPromptInput = document.getElementById('tempPromptInput');
+            if (tempPromptInput) {
+                tempPromptInput.addEventListener('input', updateTempPromptClearState);
+            }
+            updateTempPromptClearState();
         });
 
         function handleConfigChange() {
@@ -929,6 +935,21 @@
             div.textContent = msg;
             div.style.display = 'block';
             setTimeout(() => div.style.display = 'none', 3000);
+        }
+
+        function updateTempPromptClearState() {
+            const input = document.getElementById('tempPromptInput');
+            const clearBtn = document.querySelector('.textarea-clear-btn');
+            if (!input || !clearBtn) return;
+            clearBtn.classList.toggle('is-hidden', input.value.trim().length === 0);
+        }
+
+        function clearTempPrompt() {
+            const input = document.getElementById('tempPromptInput');
+            if (!input) return;
+            input.value = '';
+            input.focus();
+            updateTempPromptClearState();
         }
 
         function getCurrentGenerationConfig() {

@@ -3,7 +3,7 @@ INPUT: 仓库结构与协作规则
 OUTPUT: 贡献指南与操作约束
 POS: 协作规范入口
 UPDATE: 一旦我被更新，务必更新我的开头注释，以及所属的文件夹的md。
-UPDATED: 2026-01-02
+UPDATED: 2026-01-08
 -->
 # Repository Guidelines
 
@@ -13,7 +13,7 @@ UPDATED: 2026-01-02
 ```
 image/
 ├── .gitignore          # 忽略系统与编辑器噪音文件
-├── README.md           # 根目录主文档与规则
+├── AGENTS.md           # 根目录主文档与规则
 ├── index.html          # 单页应用入口
 ├── assets/             # 样式与脚本
 │   ├── styles.css
@@ -25,7 +25,7 @@ image/
 │   ├── check_headers.sh
 │   └── FOLDER.md
 ├── daily/              # 日常记录
-│   ├── WORKLOG.md
+│   ├── FREEWRITE.md
 │   └── FOLDER.md
 ├── Prompts/            # 预设提示词参考
 ├── docs/               # 项目文档
@@ -68,7 +68,7 @@ image/
 
 ## 架构决策与变更记录
 - 架构决策：保持单页入口与无构建部署，降低发布成本。
-- 最近变更：新增 `docs/WORKLOG.md` 记录工作日志。
+- 最近变更：根目录主文档统一为 `AGENTS.md`，自由对话新增清空按钮。
 
 ## 配置与安全提示
 - API Key 存在 `localStorage`，不要在代码中硬编码或日志输出。
