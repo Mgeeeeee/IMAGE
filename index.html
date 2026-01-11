@@ -3,7 +3,7 @@ INPUT: 浏览器环境、用户输入、API 配置/响应、本地缓存
 OUTPUT: UI 渲染、图片生成请求、下载/分享
 POS: 单页应用唯一运行入口
 UPDATE: 一旦我被更新，务必更新我的开头注释，以及所属的文件夹的md。
-UPDATED: 2026-01-08
+UPDATED: 2026-01-11
 -->
 <!DOCTYPE html>
 <html lang="zh-CN">
@@ -48,7 +48,7 @@ UPDATED: 2026-01-08
                 <path d="M5 21h14" />
             </svg>
         </button>
-        <div class="action-button" id="actionButton" onclick="expandActionCenter()" aria-label="打开面板" role="button"></div>
+        <div class="action-button" id="actionButton" onclick="expandActionCenter()" aria-label="打开面板" role="button" tabindex="0"></div>
         <button class="action-tool" id="regenBtn" onclick="regenerateLast(event)" title="重新生成">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M3 12a9 9 0 0 1 15.3-6.3" />

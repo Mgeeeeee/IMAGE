@@ -2,7 +2,7 @@
 // OUTPUT: UI 事件与生成流程
 // POS: 全局脚本入口
 // UPDATE: 一旦我被更新，务必更新我的开头注释，以及所属的文件夹的md。
-// UPDATED: 2026-01-08
+// UPDATED: 2026-01-11
         let availableModels = [];
         let referenceImageBase64 = null;
         let lastGenerationConfig = null;
@@ -214,8 +214,19 @@
             }
             updateTempPromptClearState();
 
+            document.addEventListener('keydown', handleGlobalKeydown);
             document.addEventListener('click', handleOutsidePanelClick);
         });
+
+        function handleGlobalKeydown(event) {
+            if (event.key === 'Escape' || event.key === 'Esc') {
+                const panel = document.getElementById('actionPanel');
+                if (panel && panel.classList.contains('open')) {
+                    event.preventDefault();
+                    collapseActionCenter();
+                }
+            }
+        }
 
         function handleConfigChange() {
             localStorage.setItem('apiKey', document.getElementById('apiKey').value.trim());

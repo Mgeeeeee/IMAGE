@@ -3,7 +3,7 @@ INPUT: 仓库结构与协作规则
 OUTPUT: 贡献指南与操作约束
 POS: 协作规范入口
 UPDATE: 一旦我被更新，务必更新我的开头注释，以及所属的文件夹的md。
-UPDATED: 2026-01-08
+UPDATED: 2026-01-11
 -->
 # Repository Guidelines
 
@@ -28,6 +28,11 @@ image/
 │   ├── FREEWRITE.md
 │   └── FOLDER.md
 ├── Prompts/            # 预设提示词参考
+├── skills/             # 可复用技能与协作指南
+│   ├── fanyi/           # 英文到简体中文翻译技能
+│   ├── ui-skills.md
+│   ├── WebInterfaceGuidelines.md
+│   └── FOLDER.md
 ├── docs/               # 项目文档
 │   ├── README.md
 │   ├── HANDOVER.md
@@ -68,7 +73,7 @@ image/
 
 ## 架构决策与变更记录
 - 架构决策：保持单页入口与无构建部署，降低发布成本。
-- 最近变更：根目录主文档统一为 `AGENTS.md`，自由对话新增清空按钮。
+- 最近变更：新增 skills 目录索引与 fanyi 翻译技能。
 
 ## 配置与安全提示
 - API Key 存在 `localStorage`，不要在代码中硬编码或日志输出。
