@@ -25,9 +25,11 @@
 ## 图片要求
 - 纹理：宣纸、金箔
 - 元素：东方、意象
-- 字体：手写、书法
 - 结构：疏密、有致
 - 排版：呼吸、留白
+
+## 三申五令
+- 禁止文字符号
 
 ## 输出
 - 直接生成图片，不要多余解释.`,
@@ -139,8 +141,6 @@
             }
         }
 
-
-
         function animateBackground() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -229,7 +229,8 @@
         }
 
         function handleConfigChange() {
-            localStorage.setItem('apiKey', document.getElementById('apiKey').value.trim());
+            const apiKey = document.getElementById('apiKey').value.trim();
+            localStorage.setItem('apiKey', apiKey);
             localStorage.setItem('apiUrl', document.getElementById('apiUrl').value.trim());
             localStorage.setItem('model', document.getElementById('modelSelect').value);
             localStorage.setItem('size', document.getElementById('sizeSelect').value);

@@ -3,6 +3,14 @@ name: WebInterfaceGuidelines
 description: Concise rules for building accessible, fast, delightful UIs Use MUST/SHOULD/NEVER to guide decisions
 ---
 
+<!--
+INPUT: Web 界面设计与可访问性规则
+OUTPUT: 可执行的交互与性能规范
+POS: skills/WebInterfaceGuidelines 的技能定义文件
+UPDATE: 一旦我被更新，务必更新我的开头注释，以及所属的文件夹的md。
+UPDATED: 2026-01-12
+-->
+
 Concise rules for building accessible, fast, delightful UIs Use MUST/SHOULD/NEVER to guide decisions
 
 ## Interactions

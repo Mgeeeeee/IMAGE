@@ -1,51 +1,43 @@
 <!--
 INPUT: 仓库结构与协作规则
 OUTPUT: 贡献指南与操作约束
-POS: 协作规范入口
+POS: docs 协作规范入口
 UPDATE: 一旦我被更新，务必更新我的开头注释，以及所属的文件夹的md。
-UPDATED: 2026-01-11
+UPDATED: 2026-01-12
 -->
 # Repository Guidelines
+
+## 协作要求
+
+- 用中文回复
+- 推送 GitHub 前先征询同意
+
+## 文档一致性检查
+
+- 可选执行：`scripts/check_headers.sh`
+- 目标：确保文件头部 INPUT/OUTPUT/POS/UPDATE/UPDATED 标记齐全
+- 约束：新增/移动/删除文件后，先更新对应 `FOLDER.md` 再提交
+
+## 技术栈要求
+
+### 前端框架
+
+- ❌ 不使用 React
+- ❌ 不使用 Vue、Angular 等前端框架
+- ✅ 尽可能使用纯 HTML 实现
+- ✅ 可以使用原生 JavaScript
+- ✅ 可以使用原生 CSS
+
+### 设计原则
+
+- 保持代码简洁，避免过度复杂化
+- 优先考虑浏览器原生支持的特性
+- 减少外部依赖
 
 ## 项目结构与模块组织
 本项目保持无构建入口，`index.html` 负责结构，`assets/` 承载样式与脚本。
 
-```
-image/
-├── .gitignore          # 忽略系统与编辑器噪音文件
-├── AGENTS.md           # 根目录主文档与规则
-├── index.html          # 单页应用入口
-├── assets/             # 样式与脚本
-│   ├── styles.css
-│   ├── app.js
-│   ├── favicon.svg
-│   ├── apple-touch-icon.png
-│   └── FOLDER.md
-├── scripts/            # 本地校验脚本
-│   ├── check_headers.sh
-│   └── FOLDER.md
-├── daily/              # 日常记录
-│   ├── FREEWRITE.md
-│   └── FOLDER.md
-├── Prompts/            # 预设提示词参考
-├── skills/             # 可复用技能与协作指南
-│   ├── fanyi/           # 英文到简体中文翻译技能
-│   ├── ui-skills.md
-│   ├── WebInterfaceGuidelines.md
-│   └── FOLDER.md
-├── docs/               # 项目文档
-│   ├── README.md
-│   ├── HANDOVER.md
-│   ├── REQUIREMENTS.md
-│   ├── REFLECTIONS.md
-│   ├── WORKLOG.md
-│   ├── llms.txt
-│   └── FOLDER.md
-└── meta/               # 规范与身份
-    ├── AGENTS.md
-    ├── CodexRole.md
-    └── FOLDER.md
-```
+目录结构以 `docs/README.md` 为唯一权威来源。
 
 ## 构建、测试与本地运行
 本项目为静态应用，无构建步骤。
@@ -73,7 +65,7 @@ image/
 
 ## 架构决策与变更记录
 - 架构决策：保持单页入口与无构建部署，降低发布成本。
-- 最近变更：新增 skills 目录索引与 fanyi 翻译技能。
+- 最近变更：移除 docs/meta 并合并日志文档。
 
 ## 配置与安全提示
 - API Key 存在 `localStorage`，不要在代码中硬编码或日志输出。

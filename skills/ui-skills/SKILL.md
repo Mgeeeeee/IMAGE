@@ -3,6 +3,14 @@ name: ui-skills
 description: Opinionated constraints for building better interfaces with agents.
 ---
 
+<!--
+INPUT: UI 设计与交互约束
+OUTPUT: 前端实现的规则清单
+POS: skills/ui-skills 的技能定义文件
+UPDATE: 一旦我被更新，务必更新我的开头注释，以及所属的文件夹的md。
+UPDATED: 2026-01-12
+-->
+
 # UI Skills
 
 Opinionated constraints for building better interfaces with agents.
