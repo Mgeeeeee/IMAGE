@@ -3,7 +3,7 @@ INPUT: assets/ 目录内容
 OUTPUT: 资源目录索引
 POS: assets/ 架构说明
 UPDATE: 一旦我被更新，务必更新我的开头注释，以及所属的文件夹的md。
-UPDATED: 2026-01-12
+UPDATED: 2026-01-21
 -->
 # assets 目录
 
@@ -24,4 +24,4 @@ UPDATED: 2026-01-12
 - `svgviewer-png-output.png` — 地位：视觉参考；功能：本地图标导出物。
 - `FOLDER.md` — 地位：目录索引；功能：列出 assets 内容与职责。
 
-最近更新：2026-01-12，补齐 assets 图片资源清单。
+最近更新：2026-01-21，模型快捷按钮支持 VIP 切换与非 VIP 默认。

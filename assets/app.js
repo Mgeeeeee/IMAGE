@@ -2,7 +2,7 @@
 // OUTPUT: UI 事件与生成流程
 // POS: 全局脚本入口
 // UPDATE: 一旦我被更新，务必更新我的开头注释，以及所属的文件夹的md。
-// UPDATED: 2026-01-11
+// UPDATED: 2026-01-21
         let availableModels = [];
         let referenceImageBase64 = null;
         let lastGenerationConfig = null;
@@ -17,6 +17,12 @@
         let loadingFrameRect = null;
         let loadingSizeValue = '';
         let loadingLastTime = 0;
+        const VIP_SUFFIX = '-vip';
+        const VIP_STORAGE_KEY = 'vip';
+        const QUICK_MODELS = {
+            'nano-banana': 'btn-banana',
+            'nano-banana-2': 'btn-banana-pro'
+        };
 
         const presetData = {
             '浮墨': `# 浮墨
@@ -92,8 +98,40 @@
             element.style.height = element.scrollHeight + 'px';
         }
 
-        function selectQuickModel(modelId, btnId) {
+        function isVipEnabled() {
+            return localStorage.getItem(VIP_STORAGE_KEY) === '1';
+        }
+
+        function setVipEnabled(enabled) {
+            localStorage.setItem(VIP_STORAGE_KEY, enabled ? '1' : '0');
+            const btn = document.getElementById('btn-vip');
+            if (btn) btn.classList.toggle('active', enabled);
+        }
+
+        function getBaseModel(modelId) {
+            if (!modelId) return '';
+            return modelId.endsWith(VIP_SUFFIX) ? modelId.slice(0, -VIP_SUFFIX.length) : modelId;
+        }
+
+        function resolveVipModel(baseModelId) {
+            if (!baseModelId) return baseModelId;
+            if (baseModelId.endsWith(VIP_SUFFIX)) return baseModelId;
+            return isVipEnabled() ? `${baseModelId}${VIP_SUFFIX}` : baseModelId;
+        }
+
+        function syncQuickModelButtons(modelId) {
+            document.querySelectorAll('[data-role="quick-model"]').forEach(btn => btn.classList.remove('active'));
+            const baseModel = getBaseModel(modelId);
+            const btnId = QUICK_MODELS[baseModel];
+            if (btnId) {
+                const target = document.getElementById(btnId);
+                if (target) target.classList.add('active');
+            }
+        }
+
+        function selectQuickModel(baseModelId) {
             const select = document.getElementById('modelSelect');
+            const modelId = resolveVipModel(baseModelId);
 
             // 设置模型值
             if (select) select.value = modelId;
@@ -101,8 +139,20 @@
             localStorage.setItem('model', modelId);
 
             // 按钮高亮逻辑
-            document.querySelectorAll('.model-quick-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(btnId).classList.add('active');
+            syncQuickModelButtons(modelId);
+            handleConfigChange();
+        }
+
+        function toggleVip() {
+            const next = !isVipEnabled();
+            setVipEnabled(next);
+
+            const currentModel = document.getElementById('modelSelect').value;
+            const baseModel = getBaseModel(currentModel);
+            if (QUICK_MODELS[baseModel]) {
+                selectQuickModel(baseModel);
+                return;
+            }
             handleConfigChange();
         }
 
@@ -185,27 +235,38 @@
             const savedApiUrl = localStorage.getItem('apiUrl');
             const savedModel = localStorage.getItem('model');
             const savedSize = localStorage.getItem('size');
+            const savedVip = localStorage.getItem(VIP_STORAGE_KEY) === '1';
 
             if (savedApiKey) document.getElementById('apiKey').value = savedApiKey;
             if (savedApiUrl) document.getElementById('apiUrl').value = savedApiUrl;
             if (savedSize) document.getElementById('sizeSelect').value = savedSize;
 
+            setVipEnabled(savedVip);
+
             if (savedApiKey) {
                 fetchAndUpdateModels().then(() => {
                     if (savedModel) {
                         document.getElementById('modelSelect').value = savedModel;
-                        if (savedModel === 'nano-banana-vip') {
-                            document.getElementById('btn-banana').classList.add('active');
-                        } else if (savedModel === 'nano-banana-2-vip') {
-                            document.getElementById('btn-banana-pro').classList.add('active');
+                        const baseModel = getBaseModel(savedModel);
+                        if (QUICK_MODELS[baseModel]) {
+                            setVipEnabled(savedModel.endsWith(VIP_SUFFIX));
                         }
+                        syncQuickModelButtons(savedModel);
                     }
                 });
                 fetchKeyInfo();
+            } else if (savedModel) {
+                document.getElementById('modelSelect').value = savedModel;
+                const baseModel = getBaseModel(savedModel);
+                if (QUICK_MODELS[baseModel]) {
+                    setVipEnabled(savedModel.endsWith(VIP_SUFFIX));
+                }
+                syncQuickModelButtons(savedModel);
             }
 
             if (!savedModel) {
-                selectQuickModel('nano-banana-vip', 'btn-banana');
+                setVipEnabled(false);
+                selectQuickModel('nano-banana');
             }
 
             const tempPromptInput = document.getElementById('tempPromptInput');
@@ -228,17 +289,30 @@
             }
         }
 
-        function handleConfigChange() {
-            const apiKey = document.getElementById('apiKey').value.trim();
+        function persistConfig(apiKey) {
             localStorage.setItem('apiKey', apiKey);
             localStorage.setItem('apiUrl', document.getElementById('apiUrl').value.trim());
-            localStorage.setItem('model', document.getElementById('modelSelect').value);
+            const model = document.getElementById('modelSelect').value;
+            const baseModel = getBaseModel(model);
+            localStorage.setItem('model', model);
             localStorage.setItem('size', document.getElementById('sizeSelect').value);
 
-            if (apiKey) {
-                fetchAndUpdateModels();
-                fetchKeyInfo();
+            if (QUICK_MODELS[baseModel]) {
+                setVipEnabled(model.endsWith(VIP_SUFFIX));
             }
+            syncQuickModelButtons(model);
+        }
+
+        function refreshRemoteState(apiKey) {
+            if (!apiKey) return;
+            fetchAndUpdateModels();
+            fetchKeyInfo();
+        }
+
+        function handleConfigChange() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            persistConfig(apiKey);
+            refreshRemoteState(apiKey);
         }
 
 

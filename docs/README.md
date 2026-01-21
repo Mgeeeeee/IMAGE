@@ -3,7 +3,7 @@ INPUT: 当前实现与交互约定
 OUTPUT: 使用说明与流程
 POS: 用户向导文档
 UPDATE: 一旦我被更新，务必更新我的开头注释，以及所属的文件夹的md。
-UPDATED: 2026-01-12
+UPDATED: 2026-01-21
 -->
 # IMAGE
 
@@ -14,7 +14,7 @@ UPDATED: 2026-01-12
 - 单页应用，无构建工具，入口在 `index.html`，逻辑与样式在 `assets/`
 - 文生图 + 图生图（上传参考图）
 - 风格预设：点击预设直接应用，无文本输入框
-- 模型与比例：快捷模型 + 比例下拉 + 其他模型列表
+- 模型与比例：VIP 切换 + 快捷模型 + 比例下拉 + 其他模型列表
 - 自由对话：右下角一键清空按钮（有内容时显示）
 - 面板关闭：点击面板外区域
 - 生成中提示：预设比例的粒子与连线动画 + “美好值得等待”呼吸文案
@@ -39,7 +39,7 @@ python -m http.server 8080
 1. 点击底部入口按钮展开面板  
 2. **系统设置**
    - 填写 API Key
-   - 模型比例（🍌 / 🍌 PRO / 选择比例下拉）
+   - 模型设置（VIP / 🍌 / 🍌 PRO / 选择比例下拉）
    - 其他模型（下拉列表）
 3. **风格预设**：点击需要的预设  
 4. **使用图片**：可选上传参考图  
@@ -87,7 +87,7 @@ image/
 
 - 预设风格文本在 `assets/app.js` 的 `presetData` 中维护  
 - API 路由逻辑在 `assets/app.js` 的 `generateImage()`  
-- 本地缓存使用 `localStorage`：`apiKey`、`apiUrl`、`model`、`size`
+- 本地缓存使用 `localStorage`：`apiKey`、`apiUrl`、`model`、`size`、`vip`
 - 预设面板与面板动画参数见 `assets/app.js` 与 `assets/styles.css`
 - 等待文案与加载动画位置通过 `.loading-caption` 与 `--panel-bottom-offset` 调整
 - 余额显示逻辑仍在，但 UI 已隐藏（`updateBalanceDisplay()`）
