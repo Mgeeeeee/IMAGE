@@ -16,8 +16,8 @@
             --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
             --panel-duration: 520ms;
             --panel-bottom-offset: 30px;
-            --action-sand-rgb: 226, 192, 120;
-            --action-sand-light-rgb: 244, 214, 150;
+            --action-sand-rgb: 238, 204, 132;
+            --action-sand-light-rgb: 252, 226, 164;
             --action-grass-rgb: 92, 178, 90;
             --action-grass-light-rgb: 140, 210, 135;
             --action-tomato-rgb: 232, 78, 64;
@@ -223,8 +223,8 @@
             bottom: 30px;
             left: 50%;
             transform: translateX(-50%);
-            width: 56px;
-            height: 56px;
+            width: 64px;
+            height: 64px;
             z-index: 1002;
         }
 
@@ -235,8 +235,8 @@
         .action-tool {
             position: absolute;
             top: 50%;
-            width: 44px;
-            height: 44px;
+            width: 48px;
+            height: 48px;
             border-radius: 12px;
             background: var(--toolbar-bg);
             border: 1px solid rgba(255, 255, 255, 0.35);
@@ -278,17 +278,17 @@
         .action-button {
             position: absolute;
             inset: 0;
-            width: 56px;
-            height: 56px;
+            width: 64px;
+            height: 64px;
             --glow-spin-1: 5.2s;
             --glow-spin-2: 7.8s;
             background:
-                radial-gradient(circle at 30% 25%, rgba(var(--action-sand-rgb), 0.42), rgba(var(--action-ink-rgb), 0.88) 60%),
-                linear-gradient(150deg, rgba(var(--action-ink-rgb), 0.94), rgba(var(--action-ink-2-rgb), 0.9));
+                radial-gradient(circle at 30% 25%, rgb(255 251 0), rgb(255 0 0) 60%),
+                linear-gradient(150deg, rgb(96 255 0 / 94%), rgb(56 48 40 / 90%));
             backdrop-filter: blur(20px);
             border: none;
             background-clip: padding-box;
-            border-radius: 28px;
+            border-radius: 32px;
             box-shadow:
                 0 18px 36px rgba(var(--action-ink-hard-rgb), 0.48),
                 0 0 18px rgba(var(--action-sand-rgb), 0.3),
