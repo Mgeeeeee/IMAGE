@@ -82,11 +82,11 @@ UPDATED: 2026-01-21
                     <label>模型设置</label>
                     <div class="model-btn-group">
                         <button class="model-quick-btn" id="btn-vip" data-role="quick-toggle"
-                            onclick="toggleVip()">👑 VIP</button>
+                            onclick="window.toggleVip && toggleVip()">👑 VIP</button>
                         <button class="model-quick-btn" id="btn-banana" data-role="quick-model"
-                            onclick="selectQuickModel('nano-banana')">🍌</button>
+                            onclick="selectQuickModel('nano-banana', 'btn-banana')">🍌</button>
                         <button class="model-quick-btn" id="btn-banana-pro" data-role="quick-model"
-                            onclick="selectQuickModel('nano-banana-2')">🍌 PRO</button>
+                            onclick="selectQuickModel('nano-banana-2', 'btn-banana-pro')">🍌 PRO</button>
                         <select id="sizeSelect" class="model-quick-btn model-quick-select"
                             onchange="handleConfigChange()">
                             <option value="">不设置</option>

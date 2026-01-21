@@ -156,6 +156,9 @@
             handleConfigChange();
         }
 
+        window.selectQuickModel = selectQuickModel;
+        window.toggleVip = toggleVip;
+
         let accountBalance = null;
         let rawQuota = null;
         let balanceFetched = false;
