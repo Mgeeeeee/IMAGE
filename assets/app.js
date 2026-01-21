@@ -1,8 +1,10 @@
-// INPUT: 页面交互与业务逻辑
-// OUTPUT: UI 事件与生成流程
-// POS: 全局脚本入口
-// UPDATE: 一旦我被更新，务必更新我的开头注释，以及所属的文件夹的md。
-// UPDATED: 2026-01-21
+/* ======================================================================
+ * [INPUT]: 页面交互与业务逻辑
+ * [OUTPUT]: UI 事件与生成流程
+ * [POS]: 全局脚本入口
+ * [PROTOCOL]: 变更时更新此头部，然后检查 AGENTS.md
+ * [UPDATED]: 2026-01-21
+ * ====================================================================== */
         let availableModels = [];
         let referenceImageBase64 = null;
         let lastGenerationConfig = null;
@@ -320,9 +322,46 @@
 
 
         // --- 操作中心逻辑 ---
-        const PANEL_ANIM_MS = 520;
-        const PANEL_ANIM_FALLBACK_MS = PANEL_ANIM_MS + 160;
+        const PANEL_ANIM_FALLBACK_EXTRA_MS = 160;
         let panelAnimationTimer = null;
+
+        function parseCssTimeToMs(value) {
+            if (!value) return null;
+            const trimmed = value.trim();
+            if (!trimmed) return null;
+            if (trimmed.endsWith('ms')) return Number.parseFloat(trimmed);
+            if (trimmed.endsWith('s')) return Number.parseFloat(trimmed) * 1000;
+            return Number.parseFloat(trimmed);
+        }
+
+        // 读取 CSS 动效时长，保持 JS 兜底与样式同源
+        function getCssDurationMs(varName, fallbackMs) {
+            const value = getComputedStyle(document.documentElement).getPropertyValue(varName);
+            const parsed = parseCssTimeToMs(value);
+            return Number.isFinite(parsed) ? parsed : fallbackMs;
+        }
+
+        function getPanelAnimFallbackMs() {
+            return getCssDurationMs('--panel-duration', 520) + PANEL_ANIM_FALLBACK_EXTRA_MS;
+        }
+
+        function getRectCenter(rect) {
+            return {
+                x: rect.left + rect.width / 2,
+                y: rect.top + rect.height / 2
+            };
+        }
+
+        function getPanelFlipDelta(buttonRect, panelRect) {
+            const buttonCenter = getRectCenter(buttonRect);
+            const panelCenter = getRectCenter(panelRect);
+            return {
+                dx: buttonCenter.x - panelCenter.x,
+                dy: buttonCenter.y - panelCenter.y,
+                sx: buttonRect.width / panelRect.width,
+                sy: buttonRect.height / panelRect.height
+            };
+        }
 
         function expandActionCenter() {
             const panel = document.getElementById('actionPanel');
@@ -342,21 +381,15 @@
                 stopLoadingParticles(true);
             }
 
-            const first = button.getBoundingClientRect();
-            const last = panel.getBoundingClientRect();
-            const firstCenterX = first.left + first.width / 2;
-            const firstCenterY = first.top + first.height / 2;
-            const lastCenterX = last.left + last.width / 2;
-            const lastCenterY = last.top + last.height / 2;
-            const dx = firstCenterX - lastCenterX;
-            const dy = firstCenterY - lastCenterY;
-            const sx = first.width / last.width;
-            const sy = first.height / last.height;
+            const buttonRect = button.getBoundingClientRect();
+            const panelRect = panel.getBoundingClientRect();
+            const { dx, dy, sx, sy } = getPanelFlipDelta(buttonRect, panelRect);
+            const buttonRadius = Math.max(buttonRect.width / 2, 16);
 
             panel.classList.add('open', 'animating');
             panel.style.transition = 'none';
             panel.style.transform = `translate3d(-50%, 0, 0) translate3d(${dx}px, ${dy}px, 0) scale(${sx}, ${sy})`;
-            panel.style.borderRadius = `${Math.max(first.width / 2, 16)}px`;
+            panel.style.borderRadius = `${buttonRadius}px`;
             panel.style.opacity = '1';
             panel.getBoundingClientRect();
             button.classList.remove('revealing');
@@ -385,7 +418,7 @@
                 panel.classList.remove('animating');
                 panel.removeEventListener('transitionend', onEnd);
                 panelAnimationTimer = null;
-            }, PANEL_ANIM_FALLBACK_MS);
+            }, getPanelAnimFallbackMs());
 
             // 展开后默认显示对话 Tab
             switchTab('tab-chat');
@@ -398,23 +431,17 @@
             const cluster = document.querySelector('.action-cluster');
             if (!panel.classList.contains('open') || panel.classList.contains('animating')) return;
 
-            const first = panel.getBoundingClientRect();
-            const last = button.getBoundingClientRect();
-            const firstCenterX = first.left + first.width / 2;
-            const firstCenterY = first.top + first.height / 2;
-            const lastCenterX = last.left + last.width / 2;
-            const lastCenterY = last.top + last.height / 2;
-            const dx = lastCenterX - firstCenterX;
-            const dy = lastCenterY - firstCenterY;
-            const sx = last.width / first.width;
-            const sy = last.height / first.height;
+            const buttonRect = button.getBoundingClientRect();
+            const panelRect = panel.getBoundingClientRect();
+            const { dx, dy, sx, sy } = getPanelFlipDelta(buttonRect, panelRect);
+            const buttonRadius = Math.max(buttonRect.width / 2, 16);
 
             panel.classList.add('animating');
             panel.style.opacity = '0';
             button.classList.remove('hidden');
             button.classList.add('revealing');
             panel.style.transform = `translate3d(-50%, 0, 0) translate3d(${dx}px, ${dy}px, 0) scale(${sx}, ${sy})`;
-            panel.style.borderRadius = `${Math.max(last.width / 2, 16)}px`;
+            panel.style.borderRadius = `${buttonRadius}px`;
 
             let finished = false;
             const finalize = () => {
@@ -447,7 +474,7 @@
             if (panelAnimationTimer) clearTimeout(panelAnimationTimer);
             panelAnimationTimer = setTimeout(() => {
                 finalize();
-            }, PANEL_ANIM_FALLBACK_MS);
+            }, getPanelAnimFallbackMs());
         }
 
         function switchTab(tabId, event) {
@@ -1104,6 +1131,7 @@
 
             btn.disabled = true;
             actionButton.classList.remove('revealing');
+            actionButton.classList.add('generating');
             actionButton.classList.add('hidden');
             hideActionTools();
             preview.style.display = 'none';
