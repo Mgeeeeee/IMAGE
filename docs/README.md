@@ -2,6 +2,7 @@
 INPUT: 当前实现与交互约定
 OUTPUT: 使用说明与流程
 POS: 用户向导文档
+[PROTOCOL]: 变更时更新此头部，然后检查 AGENTS.md
 UPDATE: 一旦我被更新，务必更新我的开头注释，以及所属的文件夹的md。
 UPDATED: 2026-01-21
 -->
@@ -115,6 +116,8 @@ image/
 - **面板**：`.action-panel`，展开后显示设置/预设/上传/对话
 - **关闭交互**：点击面板外区域
 - **动画**：`expandActionCenter()` 与 `collapseActionCenter()` 采用 FLIP 思路
+- **配色**：入口按钮配色通过 `:root` 的 `--action-*` 变量统一管理
+- **节奏**：入口按钮光晕转速由 `--glow-spin-1/2` 控制
 - 相关状态类：
   - `.open` / `.animating` 控制面板交互与过渡
   - `.hidden` / `.revealing` 控制入口按钮显隐
