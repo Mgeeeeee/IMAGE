@@ -25,6 +25,7 @@
             'nano-banana': 'btn-banana',
             'nano-banana-2': 'btn-banana-pro'
         };
+        const ACTION_BUTTON_CLASSES = ['hidden', 'revealing', 'generating'];
 
         const presetData = {
             '浮墨': `# 浮墨
@@ -98,6 +99,15 @@
         function autoResizeTextarea(element) {
             element.style.height = 'auto';
             element.style.height = element.scrollHeight + 'px';
+        }
+
+        function updateActionButtonState(nextState) {
+            const button = document.getElementById('actionButton');
+            if (!button) return;
+            ACTION_BUTTON_CLASSES.forEach(className => {
+                if (!Object.prototype.hasOwnProperty.call(nextState, className)) return;
+                button.classList.toggle(className, Boolean(nextState[className]));
+            });
         }
 
         function isVipEnabled() {
@@ -392,8 +402,7 @@
             panel.style.borderRadius = `${buttonRadius}px`;
             panel.style.opacity = '1';
             panel.getBoundingClientRect();
-            button.classList.remove('revealing');
-            button.classList.add('hidden');
+            updateActionButtonState({ revealing: false, hidden: true });
             if (cluster) cluster.classList.add('blocked');
             hideActionTools();
 
@@ -438,8 +447,7 @@
 
             panel.classList.add('animating');
             panel.style.opacity = '0';
-            button.classList.remove('hidden');
-            button.classList.add('revealing');
+            updateActionButtonState({ hidden: false, revealing: true });
             panel.style.transform = `translate3d(-50%, 0, 0) translate3d(${dx}px, ${dy}px, 0) scale(${sx}, ${sy})`;
             panel.style.borderRadius = `${buttonRadius}px`;
 
@@ -459,7 +467,7 @@
                 panel.getBoundingClientRect();
                 panel.style.transition = '';
                 panel.style.opacity = '';
-                button.classList.remove('revealing');
+                updateActionButtonState({ revealing: false });
                 if (cluster) cluster.classList.remove('blocked');
                 if (lastGeneratedImageUrl) {
                     showActionTools();
@@ -560,14 +568,12 @@
                 requestAnimationFrame(() => img.classList.add('revealed'));
                 lastGeneratedImageUrl = url;
                 stopLoadingParticles();
-                const actionButton = document.getElementById('actionButton');
-                if (actionButton) actionButton.classList.remove('hidden');
+                updateActionButtonState({ hidden: false });
                 showActionTools();
             };
             loader.onerror = () => {
                 stopLoadingParticles(true);
-                const actionButton = document.getElementById('actionButton');
-                if (actionButton) actionButton.classList.remove('hidden');
+                updateActionButtonState({ hidden: false });
                 showError('图片加载失败');
             };
             loader.src = url;
@@ -1130,9 +1136,7 @@
             const actionButton = document.getElementById('actionButton');
 
             btn.disabled = true;
-            actionButton.classList.remove('revealing');
-            actionButton.classList.add('generating');
-            actionButton.classList.add('hidden');
+            updateActionButtonState({ revealing: false, generating: true, hidden: true });
             hideActionTools();
             preview.style.display = 'none';
             hideEmptyState();
@@ -1240,7 +1244,7 @@
                 showEmptyState();
             } finally {
                 btn.disabled = false;
-                actionButton.classList.remove('generating');
+                updateActionButtonState({ generating: false });
             }
         }
     
