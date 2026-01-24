@@ -17,6 +17,7 @@ prompt-utils.js: 提示词清洗工具，去除空白段与不可见字符。
 image-api.js: 生图请求构建与响应解析。
 storage.js: 本地缓存读写，管理配置持久化。
 ui-state.js: UI 状态管理，控制面板与加载等视图。
+generation.js: 生成编排，协调输入与请求流程。
 favicon.svg: 站点图标，标签页/收藏展示。
 apple-touch-icon.png: 触控图标，移动端桌面入口。
 svgviewer-png-output.png: 视觉参考，本地图标导出物。

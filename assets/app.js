@@ -7,7 +7,6 @@
  * ====================================================================== */
         let availableModels = [];
         let referenceImageBase64 = null;
-        let lastGenerationConfig = null;
         let lastGeneratedImageUrl = '';
         let referenceImageRatio = null;
         const VIP_SUFFIX = '-vip';
@@ -36,20 +35,11 @@
         }
 
         const {
-            updateActionButtonState,
-            showActionTools,
-            hideActionTools,
-            showEmptyState,
-            hideEmptyState,
             showError,
             expandActionCenter,
             collapseActionCenter,
             switchTab,
-            displayPreview,
-            initLoadingVisuals,
-            startLoadingParticles,
-            stopLoadingParticles,
-            resetLoadingVisuals
+            initLoadingVisuals
         } = ui;
 
         window.expandActionCenter = expandActionCenter;
@@ -107,6 +97,21 @@
 ## 输出
 - 直接输出编辑后的图片，不要多余解释.`
         };
+
+        const generator = window.generation?.create({
+            normalizePromptText,
+            imageApi: window.imageApi,
+            ui,
+            presetData,
+            getReferenceImageBase64: () => referenceImageBase64,
+            onSuccess: () => {
+                fetchKeyInfo();
+            }
+        });
+
+        if (!generator) {
+            throw new Error('生成模块未加载');
+        }
 
         function initPresets() {
             const container = document.getElementById('presetContainer');
@@ -356,7 +361,7 @@
         function triggerGeneration(event) {
             if (event) event.stopPropagation();
             collapseActionCenter();
-            setTimeout(generateImage, 400); // 等待收缩动画过半再开始
+            setTimeout(() => generator.generate(), 400); // 等待收缩动画过半再开始
         }
 
         // 兼容旧代码的弹窗调用
@@ -488,14 +493,10 @@
 
         function regenerateLast(event) {
             if (event) event.stopPropagation();
-            if (!lastGenerationConfig) {
-                showError('暂无可重新生成的内容');
-                return;
-            }
             if (document.getElementById('actionPanel').classList.contains('open')) {
                 collapseActionCenter();
             }
-            generateImage(lastGenerationConfig);
+            generator.regenerate();
         }
 
         async function fetchKeyInfo() {
@@ -621,103 +622,5 @@
             collapseActionCenter();
         }
 
-        function getCurrentGenerationConfig() {
-            const apiKey = document.getElementById('apiKey').value.trim();
-            const apiUrl = document.getElementById('apiUrl').value.trim();
-            const model = document.getElementById('modelSelect').value;
-            const activePreset = document.querySelector('.preset-chip.active');
-            const stylePrompt = normalizePromptText(activePreset ? presetData[activePreset.textContent] || '' : '');
-            const tempPrompt = normalizePromptText(document.getElementById('tempPromptInput').value);
-            const size = document.getElementById('sizeSelect').value;
-            const fullPrompt = normalizePromptText([tempPrompt, stylePrompt].filter(p => p).join(', '));
-            return {
-                apiKey,
-                apiUrl,
-                model,
-                stylePrompt,
-                tempPrompt,
-                fullPrompt,
-                size,
-                referenceImageBase64: referenceImageBase64
-            };
-        }
-
-        async function generateImage(configOverride) {
-            const config = configOverride || getCurrentGenerationConfig();
-            const apiKey = config.apiKey || '';
-            const apiUrl = config.apiUrl || '';
-            const model = config.model || '';
-            const stylePrompt = normalizePromptText(config.stylePrompt || '');
-            const tempPrompt = normalizePromptText(config.tempPrompt || '');
-            const size = config.size || '';
-            const fullPrompt = normalizePromptText(config.fullPrompt || [tempPrompt, stylePrompt].filter(p => p).join(', '));
-            const refImage = config.referenceImageBase64;
-
-            if (!apiKey) return showError('请先配置 API Key');
-            if (!tempPrompt && !stylePrompt) return showError('请输入创作灵感');
-
-            lastGenerationConfig = {
-                apiKey,
-                apiUrl,
-                model,
-                stylePrompt,
-                tempPrompt,
-                fullPrompt,
-                size,
-                referenceImageBase64: refImage
-            };
-
-            const btn = document.getElementById('sendBtn');
-            const preview = document.getElementById('mainPreview');
-            const actionButton = document.getElementById('actionButton');
-
-            btn.disabled = true;
-            updateActionButtonState({ revealing: false, generating: true, hidden: true });
-            hideActionTools();
-            preview.style.display = 'none';
-            hideEmptyState();
-            startLoadingParticles(size);
-
-            try {
-                const api = window.imageApi;
-                if (!api) throw new Error('图片生成模块未加载');
-
-                const request = api.buildImageRequest({
-                    apiUrl,
-                    apiKey,
-                    model,
-                    size,
-                    fullPrompt,
-                    refImage
-                });
-
-                console.log(`[Router] Model: ${model}, AspectRatio: ${size}, Protocol: ${request.protocol}`);
-
-                const res = await fetch(request.url, request.options);
-
-                if (!res.ok) {
-                    const errData = await res.json();
-                    throw new Error(errData.error?.message || '请求失败，请检查 API 权限');
-                }
-
-                const data = await res.json();
-                const url = api.parseImageResponse(data);
-
-                if (url) {
-                    displayPreview(url);
-                    fetchKeyInfo();
-                } else {
-                    throw new Error('未能从响应中提取到图片地址');
-                }
-
-            } catch (e) {
-                showError(e.message);
-                stopLoadingParticles(true);
-                actionButton.classList.remove('hidden');
-                showEmptyState();
-            } finally {
-                btn.disabled = false;
-                updateActionButtonState({ generating: false });
-            }
-        }
+        
     

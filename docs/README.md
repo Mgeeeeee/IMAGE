@@ -63,6 +63,7 @@ image/
 │   ├── image-api.js
 │   ├── storage.js
 │   ├── ui-state.js
+│   ├── generation.js
 │   ├── favicon.svg
 │   ├── apple-touch-icon.png
 │   ├── svgviewer-png-output.png
@@ -96,6 +97,7 @@ image/
 - API 路由与响应解析在 `assets/image-api.js`  
 - 本地缓存读写在 `assets/storage.js`  
 - UI 状态管理在 `assets/ui-state.js`  
+- 生成编排在 `assets/generation.js`  
 - 本地缓存使用 `localStorage`：`apiKey`、`apiUrl`、`model`、`size`、`vip`
 - 预设面板与面板动画参数见 `assets/app.js` 与 `assets/styles.css`
 - 等待文案与加载动画位置通过 `.loading-caption` 与 `--panel-bottom-offset` 调整
@@ -160,7 +162,7 @@ image/
 
 ### 生成流程与状态
 
-核心流程在 `assets/app.js` 的 `generateImage()`：
+核心流程在 `assets/generation.js` 的 `generate()`：
 
 1. 读取配置（API Key / 模型 / 比例 / Prompt / 参考图）
 2. 缓存 `lastGenerationConfig`（用于重新生成）
