@@ -4,7 +4,7 @@ OUTPUT: 使用说明与流程
 POS: 用户向导文档
 [PROTOCOL]: 变更时更新此头部，然后检查 AGENTS.md
 UPDATE: 一旦我被更新，务必更新我的开头注释，以及所属的文件夹的md。
-UPDATED: 2026-01-21
+UPDATED: 2026-01-24
 -->
 # IMAGE
 
@@ -59,10 +59,13 @@ image/
 │   ├── 1.png
 │   ├── styles.css
 │   ├── app.js
+│   ├── prompt-utils.js
+│   ├── image-api.js
 │   ├── favicon.svg
 │   ├── apple-touch-icon.png
 │   ├── svgviewer-png-output.png
-│   └── FOLDER.md
+│   ├── FOLDER.md
+│   └── AGENTS.md
 ├── scripts/            # 本地校验脚本
 │   ├── check_headers.sh
 │   └── FOLDER.md
@@ -87,7 +90,8 @@ image/
 ## 维护提示
 
 - 预设风格文本在 `assets/app.js` 的 `presetData` 中维护  
-- API 路由逻辑在 `assets/app.js` 的 `generateImage()`  
+- 提示词清理在 `assets/prompt-utils.js`  
+- API 路由与响应解析在 `assets/image-api.js`  
 - 本地缓存使用 `localStorage`：`apiKey`、`apiUrl`、`model`、`size`、`vip`
 - 预设面板与面板动画参数见 `assets/app.js` 与 `assets/styles.css`
 - 等待文案与加载动画位置通过 `.loading-caption` 与 `--panel-bottom-offset` 调整
@@ -172,7 +176,7 @@ image/
 
 ### API 路由与协议
 
-`assets/app.js` 的 `generateImage()` 内有智能路由：
+`assets/image-api.js` 的 `buildImageRequest()` 内有智能路由：
 
 - **OpenAI 兼容**：当模型名包含 `banana`
   - `POST /v1/images/generations`
@@ -182,7 +186,7 @@ image/
   - `POST /v1beta/models/{model}:generateContent`
   - `generationConfig.imageConfig.aspectRatio` 接收 `A:B`
 
-响应解析：
+响应解析：`assets/image-api.js` 的 `parseImageResponse()`
 
 - 原生：从 `candidates[0].content.parts` 中提取 URL
 - 兼容：从 `data[0].url` 读取

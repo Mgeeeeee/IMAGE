@@ -3,7 +3,7 @@
  * [OUTPUT]: UI 事件与生成流程
  * [POS]: 全局脚本入口
  * [PROTOCOL]: 变更时更新此头部，然后检查 AGENTS.md
- * [UPDATED]: 2026-01-21
+ * [UPDATED]: 2026-01-24
  * ====================================================================== */
         let availableModels = [];
         let referenceImageBase64 = null;
@@ -26,6 +26,7 @@
             'nano-banana-2': 'btn-banana-pro'
         };
         const ACTION_BUTTON_CLASSES = ['hidden', 'revealing', 'generating'];
+        const normalizePromptText = window.promptUtils?.normalizePromptText || (text => (text || '').trim());
 
         const presetData = {
             '浮墨': `# 浮墨
@@ -1090,10 +1091,10 @@
             const apiUrl = document.getElementById('apiUrl').value.trim();
             const model = document.getElementById('modelSelect').value;
             const activePreset = document.querySelector('.preset-chip.active');
-            const stylePrompt = activePreset ? presetData[activePreset.textContent] || '' : '';
-            const tempPrompt = document.getElementById('tempPromptInput').value.trim();
+            const stylePrompt = normalizePromptText(activePreset ? presetData[activePreset.textContent] || '' : '');
+            const tempPrompt = normalizePromptText(document.getElementById('tempPromptInput').value);
             const size = document.getElementById('sizeSelect').value;
-            const fullPrompt = [tempPrompt, stylePrompt].filter(p => p).join(', ');
+            const fullPrompt = normalizePromptText([tempPrompt, stylePrompt].filter(p => p).join(', '));
             return {
                 apiKey,
                 apiUrl,
@@ -1111,10 +1112,10 @@
             const apiKey = config.apiKey || '';
             const apiUrl = config.apiUrl || '';
             const model = config.model || '';
-            const stylePrompt = config.stylePrompt || '';
-            const tempPrompt = config.tempPrompt || '';
+            const stylePrompt = normalizePromptText(config.stylePrompt || '');
+            const tempPrompt = normalizePromptText(config.tempPrompt || '');
             const size = config.size || '';
-            const fullPrompt = config.fullPrompt || [tempPrompt, stylePrompt].filter(p => p).join(', ');
+            const fullPrompt = normalizePromptText(config.fullPrompt || [tempPrompt, stylePrompt].filter(p => p).join(', '));
             const refImage = config.referenceImageBase64;
 
             if (!apiKey) return showError('请先配置 API Key');
@@ -1143,70 +1144,21 @@
             startLoadingParticles(size);
 
             try {
-                // 智能路由逻辑：优先原生协议以获得更好的连通性和功能支持
-                // 仅特定的第三方桥接模型（如 banana）强制使用 OpenAI 兼容路由
-                const isGenerationsApi = model.toLowerCase().includes('banana');
+                const api = window.imageApi;
+                if (!api) throw new Error('图片生成模块未加载');
 
-                console.log(`[Router] Model: ${model}, AspectRatio: ${size}, Protocol: ${isGenerationsApi ? 'OpenAI-Compatible' : 'Google-Native'}`);
+                const request = api.buildImageRequest({
+                    apiUrl,
+                    apiKey,
+                    model,
+                    size,
+                    fullPrompt,
+                    refImage
+                });
 
-                let res;
-                if (isGenerationsApi) {
-                    // --- 方案 A: 使用 /v1/images/generations (DALL-E 兼容格式) ---
-                    const requestBody = {
-                        model: model,
-                        prompt: fullPrompt,
-                        n: 1,
-                        size: size.replace(':', 'x'), // 转换为 21x9 格式
-                        response_format: 'url'
-                    };
+                console.log(`[Router] Model: ${model}, AspectRatio: ${size}, Protocol: ${request.protocol}`);
 
-                    if (refImage) {
-                        requestBody.image = [refImage];
-                    }
-
-                    res = await fetch(`${apiUrl}/v1/images/generations`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${apiKey}`
-                        },
-                        body: JSON.stringify(requestBody)
-                    });
-                } else {
-                    // --- 方案 B: 使用 Google 原生 :generateContent 协议 ---
-                    const nativeBody = {
-                        contents: [{ parts: [] }],
-                        generationConfig: { responseModalities: ["IMAGE", "TEXT"] }
-                    };
-
-                    // 处理参考图
-                    if (refImage) {
-                        const base64Data = refImage.split(',')[1] || refImage;
-                        nativeBody.contents[0].parts.push({
-                            inline_data: {
-                                mime_type: "image/jpeg",
-                                data: base64Data
-                            }
-                        });
-                    }
-
-                    // 添加文本提示词
-                    nativeBody.contents[0].parts.push({ text: fullPrompt });
-
-                    // 设置比例 (仅当 size 包含冒号时作为 aspectRatio 传递)
-                    if (size && size.includes(':')) {
-                        nativeBody.generationConfig.imageConfig = { aspectRatio: size };
-                    }
-
-                    res = await fetch(`${apiUrl}/v1beta/models/${model}:generateContent`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${apiKey}`
-                        },
-                        body: JSON.stringify(nativeBody)
-                    });
-                }
+                const res = await fetch(request.url, request.options);
 
                 if (!res.ok) {
                     const errData = await res.json();
@@ -1214,21 +1166,7 @@
                 }
 
                 const data = await res.json();
-                let url = null;
-
-                // 统一兼容性解析
-                if (data.candidates && data.candidates[0]?.content?.parts) {
-                    // 原生响应解析
-                    for (const part of data.candidates[0].content.parts) {
-                        if (part.text) {
-                            const match = part.text.match(/https?:\/\/[^\s"]+\.(jpg|jpeg|png|gif|webp)/i);
-                            if (match) url = match[0];
-                        }
-                    }
-                } else if (data.data && data.data[0]?.url) {
-                    // 兼容响应解析
-                    url = data.data[0].url;
-                }
+                const url = api.parseImageResponse(data);
 
                 if (url) {
                     displayPreview(url);

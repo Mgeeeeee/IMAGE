@@ -3,7 +3,7 @@ INPUT: 浏览器环境、用户输入、API 配置/响应、本地缓存
 OUTPUT: UI 渲染、图片生成请求、下载/分享
 POS: 单页应用唯一运行入口
 UPDATE: 一旦我被更新，务必更新我的开头注释，以及所属的文件夹的md。
-UPDATED: 2026-01-21
+UPDATED: 2026-01-24
 -->
 <!DOCTYPE html>
 <html lang="zh-CN">
@@ -202,6 +202,8 @@ UPDATED: 2026-01-21
 
     <input type="file" id="imageUpload" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
 
+    <script src="assets/prompt-utils.js" defer></script>
+    <script src="assets/image-api.js" defer></script>
     <script src="assets/app.js" defer></script>
 
 </body>
