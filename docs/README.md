@@ -61,6 +61,8 @@ image/
 │   ├── app.js
 │   ├── prompt-utils.js
 │   ├── image-api.js
+│   ├── storage.js
+│   ├── ui-state.js
 │   ├── favicon.svg
 │   ├── apple-touch-icon.png
 │   ├── svgviewer-png-output.png
@@ -92,6 +94,8 @@ image/
 - 预设风格文本在 `assets/app.js` 的 `presetData` 中维护  
 - 提示词清理在 `assets/prompt-utils.js`  
 - API 路由与响应解析在 `assets/image-api.js`  
+- 本地缓存读写在 `assets/storage.js`  
+- UI 状态管理在 `assets/ui-state.js`  
 - 本地缓存使用 `localStorage`：`apiKey`、`apiUrl`、`model`、`size`、`vip`
 - 预设面板与面板动画参数见 `assets/app.js` 与 `assets/styles.css`
 - 等待文案与加载动画位置通过 `.loading-caption` 与 `--panel-bottom-offset` 调整
